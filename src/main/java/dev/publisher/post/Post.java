@@ -17,6 +17,16 @@ public record Post(
         @NotEmpty
         String content,
 
+        String excerpt,
+
+        String image_url,
+
+        String tags,
+
+        String status,
+
+        Integer read_time,
+
         @NotEmpty
         @Nullable
         LocalDateTime created_at,
@@ -27,7 +37,14 @@ public record Post(
 
         @NotEmpty
         @NotNull
-        Integer author_id
+        Integer author_id,
+
+        @NotEmpty
+        @NotNull
+        String category,
+
+        @NotNull
+        Boolean featured
 ) {
     public Post {
         if (created_at == null) {
