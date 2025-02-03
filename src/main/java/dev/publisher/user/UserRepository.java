@@ -16,9 +16,8 @@ public class UserRepository {
     }
 
     public void save(User user) {
-        System.out.println(user.toString());
-        var created = jdbcClient.sql("INSERT INTO users (username, email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
-                .params(List.of(user.username(), user.email(), user.password(), user.role(), user.created_at(), user.updated_at()))
+        var created = jdbcClient.sql("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+                .params(List.of(user.username(), user.email(), user.password()))
                 .update();
         Assert.state(created == 1, "failed to create user " + user.username());
     }

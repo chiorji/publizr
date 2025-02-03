@@ -24,8 +24,7 @@ public class UserController {
     @GetMapping("/{id}")
     User findById(@PathVariable Integer id) {
         Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) throw new UserNotFoundException();
-        return user.get();
+        return user.orElse(null);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

@@ -1,6 +1,6 @@
-INSERT INTO users (username, email, password, role) VALUES ('bright', 'bright@orji.com', 'password', 1);
-INSERT INTO users (username, email, password, role) VALUES ('john', 'john@yopmail.com', 'password', 2);
-INSERT INTO users (username, email, password, role) VALUES ('jane', 'jane@yopmail.com', 'password', 3);
+INSERT INTO users (username, email, password, role) VALUES ('bright', 'bright@orji.com', 'password', 'ADMIN');
+INSERT INTO users (username, email, password) VALUES ('john', 'john@yopmail.com', 'password');
+INSERT INTO users (username, email, password) VALUES ('jane', 'jane@yopmail.com', 'password');
 
 INSERT INTO posts (title, excerpt, content, author_id, category, image_url, featured, tags, status) VALUES (
 'Getting Started with React: A Beginners Guide',

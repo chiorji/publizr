@@ -22,8 +22,9 @@ public record User(
         @NotNull
         String password,
 
-        @NotNull
-        Integer role,
+        String role,
+
+        String image_url,
 
         @NotNull
         LocalDateTime created_at,
