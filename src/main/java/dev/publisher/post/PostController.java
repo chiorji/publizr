@@ -17,12 +17,12 @@ public class PostController {
     }
 
     @GetMapping("")
-    List<PostAuthorData> findAll() {
+    List<PostDTO> findAll() {
         return postRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    Optional<Post> findById(@PathVariable Integer id) {
+    Optional<PostDTO> findById(@PathVariable Integer id) {
         return postRepository.findById(id);
     }
 
@@ -33,7 +33,7 @@ public class PostController {
     }
 
     @GetMapping("/author/{id}")
-    Optional<List<PostAuthorData>> findAllByAuthorId(@PathVariable Integer id) {
+    Optional<List<PostDTO>> findAllByAuthorId(@PathVariable Integer id) {
         return Optional.ofNullable(postRepository.findAllByAuthorId(id));
     }
 }

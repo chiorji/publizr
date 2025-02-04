@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record PostAuthorData(
+public record PostDTO(
         @NotEmpty
         @NotNull
         String username,
 
         Integer author_id,
+
         Integer post_id,
 
         String title,
