@@ -19,7 +19,7 @@ public record Post(
 
         String excerpt,
 
-        String image_url,
+        String poster_card,
 
         String tags,
 
@@ -29,11 +29,11 @@ public record Post(
 
         @NotEmpty
         @Nullable
-        LocalDateTime created_at,
+        LocalDateTime posted_on,
 
         @NotEmpty
         @Nullable
-        LocalDateTime updated_at,
+        LocalDateTime last_updated,
 
         @NotEmpty
         @NotNull
@@ -47,9 +47,9 @@ public record Post(
         Boolean featured
 ) {
     public Post {
-        if (created_at == null) {
-            created_at = LocalDateTime.now();
+        if (posted_on == null) {
+            posted_on = LocalDateTime.now();
         }
-        updated_at = LocalDateTime.now();
+        last_updated = LocalDateTime.now();
     }
 }

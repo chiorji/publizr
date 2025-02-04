@@ -17,7 +17,7 @@ public class PostController {
     }
 
     @GetMapping("")
-    List<Post> findAll() {
+    List<PostAuthorData> findAll() {
         return postRepository.findAll();
     }
 
@@ -32,4 +32,8 @@ public class PostController {
         postRepository.save(post);
     }
 
+    @GetMapping("/author/{id}")
+    Optional<List<PostAuthorData>> findAllByAuthorId(@PathVariable Integer id) {
+        return Optional.ofNullable(postRepository.findAllByAuthorId(id));
+    }
 }
