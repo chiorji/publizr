@@ -7,8 +7,6 @@ import org.springframework.data.annotation.Id;
 import java.time.LocalDateTime;
 
 public record User(
-        @Id
-        Integer id,
 
         @NotEmpty
         @NotNull
@@ -20,22 +18,7 @@ public record User(
 
         @NotEmpty
         @NotNull
-        String password,
+        String password
 
-        String role,
-
-        String image_url,
-
-        @NotNull
-        LocalDateTime created_at,
-
-        @NotNull
-        LocalDateTime updated_at
 ) {
-    public User {
-        if (created_at == null) {
-            created_at = LocalDateTime.now();
-        }
-        updated_at = LocalDateTime.now();
-    }
 }

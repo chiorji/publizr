@@ -17,13 +17,13 @@ public class UserController {
     }
 
     @GetMapping("")
-    List<User> findAll() {
+    List<UserDTO> findAll() {
         return userRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    User findById(@PathVariable Integer id) {
-        Optional<User> user = userRepository.findById(id);
+    UserDTO findById(@PathVariable Integer id) {
+        Optional<UserDTO> user = userRepository.findById(id);
         return user.orElse(null);
     }
 

@@ -16,20 +16,20 @@ public class UserRepository {
     }
 
     public void save(User user) {
-        var created = jdbcClient.sql("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+        var created = jdbcClient.sql("INSERT INTO USERS (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)")
                 .params(List.of(user.username(), user.email(), user.password()))
                 .update();
         Assert.state(created == 1, "failed to create user " + user.username());
     }
 
-    public List<User> findAll() {
-        return jdbcClient.sql("SELECT * FROM users").query(User.class).list();
+    public List<UserDTO> findAll() {
+        return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
     }
 
-    public Optional<User> findById(Integer id) {
-        return jdbcClient.sql("SELECT * FROM users WHERE id = :id")
-                .param("id", id)
-                .query(User.class)
+    public Optional<UserDTO> findById(Integer id) {
+        return jdbcClient.sql("SELECT * FROM USERS WHERE ID = :ID")
+                .param("ID", id)
+                .query(UserDTO.class)
                 .optional();
     }
 }
