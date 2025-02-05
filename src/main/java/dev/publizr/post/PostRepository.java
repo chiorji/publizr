@@ -93,4 +93,28 @@ public class PostRepository {
                 AND P.STATUS ILIKE '%PUBLISHED'
                 ORDER BY P.POSTED_ON""").param("ID", id).query(PostDTO.class).stream().toList();
     }
+
+    public List<PostDTO> findOverview() {
+        return jdbcClient.sql("""
+                SELECT
+                     P.AUTHOR_ID,
+                     P.CATEGORY,
+                     P.CONTENT,
+                     P.POSTED_ON,
+                     P.EXCERPT,
+                     P.FEATURED,
+                     P.POSTER_CARD,
+                     (P.ID) AS POST_ID,
+                     P.STATUS,
+                     P.TAGS,
+                     P.TITLE,
+                     P.LAST_UPDATED,
+                     A.USERNAME
+                     FROM POSTS P INNER JOIN USERS A
+                     ON P.AUTHOR_ID = A.ID
+                     AND P.STATUS ILIKE '%PUBLISHED'
+                     ORDER BY P.POSTED_ON
+                     LIMIT 10
+                """).query(PostDTO.class).stream().toList();
+    }
 }

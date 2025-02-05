@@ -36,4 +36,9 @@ public class PostController {
     Optional<List<PostDTO>> findAllByAuthorId(@PathVariable Integer id) {
         return Optional.ofNullable(postRepository.findAllByAuthorId(id));
     }
+
+    @GetMapping("/overview")
+    Optional<List<PostDTO>> findOverview() {
+        return Optional.ofNullable(postRepository.findOverview());
+    }
 }
