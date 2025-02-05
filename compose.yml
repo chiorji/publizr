@@ -2,8 +2,8 @@ services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - 'POSTGRES_DB=publisher'
-      - 'POSTGRES_PASSWORD=password'
-      - 'POSTGRES_USER=chi'
+      - 'POSTGRES_DB=publizr'
+      - 'POSTGRES_PASSWORD=publizr'
+      - 'POSTGRES_USER=publizr'
     ports:
       - '5432:5432'
