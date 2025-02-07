@@ -1,5 +1,6 @@
 package dev.publizr.user;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -20,9 +21,10 @@ public class UserRepository {
 
 	public Integer createUser(User user) {
 		try {
+			String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt(10));
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var created = jdbcClient.sql("INSERT INTO USERS (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)")
-				.params(List.of(user.username(), user.email(), user.password()))
+				.params(List.of(user.username(), user.email(), hashedPassword))
 				.update(keyHolder);
 			Assert.state(created == 1, "failed to create user " + user.username());
 			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("USER_ID");
