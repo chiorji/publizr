@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public record User(
 	@NotEmpty
 	@NotNull
-	Integer user_id,
+	Integer id,
 
 	@NotEmpty
 	@NotNull

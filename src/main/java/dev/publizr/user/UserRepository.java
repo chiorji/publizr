@@ -26,7 +26,7 @@ public class UserRepository {
 				.params(List.of(user.username(), user.email(), hashedPassword))
 				.update(keyHolder);
 			Assert.state(created == 1, "failed to create user " + user.username());
-			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("USER_ID");
+			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
@@ -36,18 +36,18 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 
-	public UserDTO findByEmailAndPassword(String email, String password) {
+	public UserDTO findByEmailAndPassword(LoginPayload payload) {
 		try {
 			var user = jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
-				.param("EMAIL", email)
+				.param("EMAIL", payload.email())
 				.query(User.class)
 				.single();
-
-			if (!BCrypt.checkpw(password, user.password())) {
-				throw new RuntimeException("INVALID USERNAME OR PASSWORD");
+			System.out.println(user);
+			if (!BCrypt.checkpw(payload.password(), user.password())) {
+				throw new RuntimeException("HEY! THERE'S A CATCH - EITHER AN INVALID EMAIL OR PASSWORD");
 			}
 			return new UserDTO(
-				user.user_id(),
+				user.id(),
 				user.username(),
 				user.email(),
 				user.role(),
@@ -56,7 +56,7 @@ public class UserRepository {
 				user.updated_at()
 			);
 		} catch (Exception e) {
-			throw new RuntimeException("INVALID USERNAME OR PASSWORD");
+			throw new RuntimeException(e.getLocalizedMessage());
 		}
 	}
 
@@ -66,7 +66,7 @@ public class UserRepository {
 	}
 
 	public UserDTO findByUserId(Integer id) {
-		return jdbcClient.sql("SELECT * FROM USERS WHERE USER_ID = :USER_ID")
-			.param("USER_ID", id).query(UserDTO.class).single();
+		return jdbcClient.sql("SELECT * FROM USERS WHERE ID = :ID")
+			.param("ID", id).query(UserDTO.class).single();
 	}
 }
