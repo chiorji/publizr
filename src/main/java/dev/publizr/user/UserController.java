@@ -4,12 +4,13 @@ import dev.publizr.jwt.JWTService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @RestController
@@ -22,36 +23,44 @@ public class UserController {
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
 	}
+	
+//
+//	@GetMapping("")
+//	List<UserDTO> findAll() {
+//		return userRepository.findAll();
+//	}
 
-	@GetMapping("")
-	List<UserDTO> findAll() {
-		return userRepository.findAll();
+	@PostMapping("/login")
+	ResponseEntity<Map<String, String>> findById(@RequestBody Map<String, String> payload) {
+		String email = payload.get("email");
+		String password = payload.get("password");
+
+		UserDTO user = userRepository.findByEmailAndPassword(email, password);
+		String jwtToken = jwtService.generateJWTToken(user);
+
+		Map<String, String> map = new HashMap<>();
+		map.put("token", jwtToken);
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@GetMapping("/{id}")
-	UserDTO findById(@PathVariable Integer id) {
-		Optional<UserDTO> user = userRepository.findById(id);
-		return user.orElse(null);
-	}
-
-	@PostMapping("")
-	ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody User user) {
+	@PostMapping("/signup")
+	ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody UserSignUpPayload payload) {
 		Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-		if (!pattern.matcher(user.email()).matches())
-			throw new RuntimeException(String.format("EMAIL '%S' IS INVALID", user.email().toUpperCase()));
+		if (!pattern.matcher(payload.email()).matches())
+			throw new RuntimeException(String.format("EMAIL '%S' IS INVALID", payload.email().toUpperCase()));
 
 		Integer createdUserId = null;
 		try {
-			Integer emailCount = userRepository.findUserByEmailAddress(user.email());
+			Integer emailCount = userRepository.findUserByEmailAddress(payload.email());
 			if (emailCount > 0)
-				throw new RuntimeException(String.format("USER WITH EMAIL '%S' ALREADY EXIST", user.email()));
+				throw new RuntimeException(String.format("USER WITH EMAIL '%S' ALREADY EXIST", payload.email()));
 
-			createdUserId = userRepository.createUser(user);
+			createdUserId = userRepository.createUser(payload);
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
 
-		User createdUser = userRepository.findByUserId(createdUserId);
+		UserDTO createdUser = userRepository.findByUserId(createdUserId);
 		String jwtToken = jwtService.generateJWTToken(createdUser);
 		Map<String, String> map = new HashMap<>();
 		map.put("token", jwtToken);

@@ -9,7 +9,6 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Repository
 public class UserRepository {
@@ -19,7 +18,7 @@ public class UserRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	public Integer createUser(User user) {
+	public Integer createUser(UserSignUpPayload user) {
 		try {
 			String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt(10));
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -37,11 +36,28 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 
-	public Optional<UserDTO> findById(Integer id) {
-		return jdbcClient.sql("SELECT * FROM USERS WHERE ID = :ID")
-			.param("ID", id)
-			.query(UserDTO.class)
-			.optional();
+	public UserDTO findByEmailAndPassword(String email, String password) {
+		try {
+			var user = jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
+				.param("EMAIL", email)
+				.query(User.class)
+				.single();
+
+			if (!BCrypt.checkpw(password, user.password())) {
+				throw new RuntimeException("INVALID USERNAME OR PASSWORD");
+			}
+			return new UserDTO(
+				user.user_id(),
+				user.username(),
+				user.email(),
+				user.role(),
+				user.image_url(),
+				user.created_at(),
+				user.updated_at()
+			);
+		} catch (Exception e) {
+			throw new RuntimeException("INVALID USERNAME OR PASSWORD");
+		}
 	}
 
 	public Integer findUserByEmailAddress(final String email) {
@@ -49,8 +65,8 @@ public class UserRepository {
 			.param("EMAIL", email).query(User.class).list().size();
 	}
 
-	public User findByUserId(Integer id) {
+	public UserDTO findByUserId(Integer id) {
 		return jdbcClient.sql("SELECT * FROM USERS WHERE USER_ID = :USER_ID")
-			.param("USER_ID", id).query(User.class).single();
+			.param("USER_ID", id).query(UserDTO.class).single();
 	}
 }

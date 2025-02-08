@@ -3,7 +3,7 @@ package dev.publizr.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import dev.publizr.user.User;
+import dev.publizr.user.UserDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,7 +16,7 @@ public class JWTService {
 	private final String SECRET_KEY = "APISECRETRANDOMKEY";
 	private final String TOKEN_ISSUER = "publizr";
 
-	public String generateJWTToken(User user) {
+	public String generateJWTToken(UserDTO user) {
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 			long expireString = Long.parseLong(String.valueOf(3));
@@ -25,6 +25,9 @@ public class JWTService {
 
 			return JWT.create()
 				.withIssuer(TOKEN_ISSUER)
+
+				.withClaim("id", user.id())
+				.withClaim("role", user.role())
 				.withClaim("username", user.username())
 				.withClaim("email", user.email())
 				.withExpiresAt(Date.from(instant))
