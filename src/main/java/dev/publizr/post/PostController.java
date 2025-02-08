@@ -10,35 +10,35 @@ import java.util.Optional;
 @RequestMapping("/api/posts")
 public class PostController {
 
-    private final PostRepository postRepository;
+	private final PostRepository postRepository;
 
-    public PostController(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+	public PostController(PostRepository postRepository) {
+		this.postRepository = postRepository;
+	}
 
-    @GetMapping("")
-    List<PostDTO> findAll() {
-        return postRepository.findAll();
-    }
+	@GetMapping("")
+	List<PostDTO> findAll() {
+		return postRepository.findAll();
+	}
 
-    @GetMapping("/{id}")
-    Optional<PostDTO> findById(@PathVariable Integer id) {
-        return postRepository.findById(id);
-    }
+	@GetMapping("/{id}")
+	Optional<PostDTO> findById(@PathVariable Integer id) {
+		return postRepository.findById(id);
+	}
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("")
-    void create(@RequestBody Post post) {
-        postRepository.save(post);
-    }
+	@ResponseStatus(HttpStatus.CREATED)
+	@PostMapping("/new")
+	void create(@RequestBody Post post) {
+		postRepository.save(post);
+	}
 
-    @GetMapping("/author/{id}")
-    Optional<List<PostDTO>> findAllByAuthorId(@PathVariable Integer id) {
-        return Optional.ofNullable(postRepository.findAllByAuthorId(id));
-    }
+	@GetMapping("/author/{id}")
+	Optional<List<PostDTO>> findAllByAuthorId(@PathVariable Integer id) {
+		return Optional.ofNullable(postRepository.findAllByAuthorId(id));
+	}
 
-    @GetMapping("/overview")
-    Optional<List<PostDTO>> findOverview() {
-        return Optional.ofNullable(postRepository.findOverview());
-    }
+	@GetMapping("/recent")
+	Optional<List<PostDTO>> findOverview() {
+		return Optional.ofNullable(postRepository.findOverview());
+	}
 }

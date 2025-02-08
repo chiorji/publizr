@@ -1,9 +1,17 @@
 services:
-  postgres:
+  postgresql:
     image: 'postgres:latest'
+    container_name: blogs
+    restart: always
     environment:
-      - 'POSTGRES_DB=publizr'
-      - 'POSTGRES_PASSWORD=publizr'
-      - 'POSTGRES_USER=publizr'
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_ROOT_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
     ports:
-      - '5432:5432'
+      - ${POSTGRES_PORT}:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 3000s
+      retries: 5

@@ -4,12 +4,10 @@ import dev.publizr.jwt.JWTService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -23,12 +21,12 @@ public class UserController {
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
 	}
-	
-//
-//	@GetMapping("")
-//	List<UserDTO> findAll() {
-//		return userRepository.findAll();
-//	}
+
+
+	@GetMapping("")
+	List<UserDTO> findAll() {
+		return userRepository.findAll();
+	}
 
 	@PostMapping("/login")
 	ResponseEntity<Map<String, String>> findById(@RequestBody Map<String, String> payload) {
