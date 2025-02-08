@@ -25,7 +25,7 @@ public class PostController {
 	}
 
 	@GetMapping("/{id}")
-	Optional<PostDTO> findById(@PathVariable Integer id) {
+	PostDTO findById(@PathVariable Integer id) {
 		return postRepository.findById(id);
 	}
 
@@ -59,6 +59,25 @@ public class PostController {
 			map.put("success", String.valueOf(false));
 			map.put("message", e.getLocalizedMessage());
 			return new ResponseEntity<>(map, HttpStatus.OK);
+		}
+	}
+
+	@PutMapping("/{id}")
+	ResponseEntity<Map<String, String>> updatePostWithProvidedPayload(@RequestBody PostDTO payload) {
+		try {
+			PostDTO updatedPost = postRepository.updatePostWithProvidedPayload(payload);
+			System.out.println(updatedPost);
+			if (updatedPost == null) throw new RuntimeException("failed to update post");
+			Map<String, String> map = new HashMap<>();
+			map.put("success", String.valueOf(true));
+			map.put("message", "Post updated successfully");
+//			map.put("data", "");
+			return new ResponseEntity<>(map, HttpStatus.OK);
+		} catch (RuntimeException e) {
+			Map<String, String> map = new HashMap<>();
+			map.put("success", String.valueOf(false));
+			map.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(map, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 }
