@@ -17,7 +17,7 @@ public class PostController {
 	}
 
 	@GetMapping("")
-	List<PostDTO> findAll() {
+	List<PostDTO> list() {
 		return postRepository.findAll();
 	}
 
@@ -33,12 +33,12 @@ public class PostController {
 	}
 
 	@GetMapping("/author/{id}")
-	Optional<List<PostDTO>> findAllByAuthorId(@PathVariable Integer id) {
-		return Optional.ofNullable(postRepository.findAllByAuthorId(id));
+	Optional<List<PostDTO>> getPostsBelongingToAuthorWithId(@PathVariable Integer id) {
+		return Optional.ofNullable(postRepository.getPostsBelongingToAuthorWithId(id));
 	}
 
 	@GetMapping("/recent")
-	Optional<List<PostDTO>> findOverview() {
-		return Optional.ofNullable(postRepository.findOverview());
+	Optional<List<PostDTO>> recent() {
+		return Optional.ofNullable(postRepository.getRecentPosts());
 	}
 }

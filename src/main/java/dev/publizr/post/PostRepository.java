@@ -74,7 +74,7 @@ public class PostRepository {
 			.optional();
 	}
 
-	List<PostDTO> findAllByAuthorId(Integer id) {
+	List<PostDTO> getPostsBelongingToAuthorWithId(Integer id) {
 		return jdbcClient.sql("""
 			                      SELECT
 			                      P.AUTHOR_ID,
@@ -96,7 +96,7 @@ public class PostRepository {
 			                      ORDER BY P.POSTED_ON""").param("ID", id).query(PostDTO.class).stream().toList();
 	}
 
-	public List<PostDTO> findOverview() {
+	public List<PostDTO> getRecentPosts() {
 		return jdbcClient.sql("""
 			                      (
 			                      	SELECT

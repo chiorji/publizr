@@ -21,11 +21,10 @@ public class UserController {
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
 	}
-
-
+	
 	@GetMapping("")
-	List<UserDTO> findAll() {
-		return userRepository.findAll();
+	List<UserDTO> list() {
+		return userRepository.list();
 	}
 
 	@PostMapping("/login")

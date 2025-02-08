@@ -32,7 +32,7 @@ public class UserRepository {
 		}
 	}
 
-	public List<UserDTO> findAll() {
+	public List<UserDTO> list() {
 		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 
