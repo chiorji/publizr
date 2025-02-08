@@ -1,10 +1,13 @@
 package dev.publizr.post;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -45,7 +48,8 @@ public class PostRepository {
 			                      A.USERNAME
 			                      FROM POSTS P JOIN USERS A
 			                      ON P.STATUS ILIKE '%PUBLISHED'
-			                      ORDER BY P.POSTED_ON""").query(PostDTO.class).list();
+			                      ORDER BY P.POSTED_ON"""
+		).query(PostDTO.class).list();
 	}
 
 	Optional<PostDTO> findById(Integer id) {
@@ -93,7 +97,8 @@ public class PostRepository {
 			                      FROM POSTS P JOIN USERS A
 			                      ON P.AUTHOR_ID = :ID
 			                      AND P.STATUS ILIKE '%PUBLISHED'
-			                      ORDER BY P.POSTED_ON""").param("ID", id).query(PostDTO.class).stream().toList();
+			                      ORDER BY P.POSTED_ON"""
+		).param("ID", id).query(PostDTO.class).stream().toList();
 	}
 
 	public List<PostDTO> getRecentPosts() {
@@ -151,5 +156,18 @@ public class PostRepository {
 			                      	LIMIT
 			                      		9
 			                      )""").query(PostDTO.class).stream().toList();
+	}
+
+	public Integer deletePostWithProvidedId(Integer id) {
+		try {
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE POST_ID = :ID")
+				.param("ID", id)
+				.update(keyHolder);
+			Assert.state(deletedId == 1, "Failed to delete post");
+			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("POST_ID");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
