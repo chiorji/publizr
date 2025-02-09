@@ -17,7 +17,8 @@ public class PostRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	void save(Post post) {
+	Integer save(Post post) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
 		var created = jdbcClient.sql(
 				"""
 						INSERT INTO POSTS (TITLE, EXCERPT, CONTENT, AUTHOR_ID, CATEGORY, POSTER_CARD, FEATURED, TAGS, STATUS)
@@ -27,11 +28,12 @@ public class PostRepository {
 				post.title(), post.excerpt(), post.content(), post.author_id(), post.category(),
 				post.poster_card(), post.featured(), post.tags(), post.status()
 			))
-			.update();
-		Assert.state(created == 1, "failed to create post " + post.title());
+			.update(keyHolder);
+		Assert.state(created == 1, "Failed to publish post " + post.title());
+		return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 	}
 
-	List<PostDTO> findAll() {
+	List<PostDTO> list() {
 		return jdbcClient.sql(
 			"""
 				SELECT
@@ -54,7 +56,7 @@ public class PostRepository {
 		).query(PostDTO.class).list();
 	}
 
-	List<PostDTO> getPostsBelongingToAuthorWithId(Integer id) {
+	List<PostDTO> getPostsByAuthorId(Integer id) {
 		return jdbcClient.sql(
 			"""
 				SELECT
@@ -139,11 +141,11 @@ public class PostRepository {
 	public Integer deletePostWithProvidedId(Integer id) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE POST_ID = :ID")
+			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE ID = :ID")
 				.param("ID", id)
 				.update(keyHolder);
 			Assert.state(deletedId == 1, "Failed to delete post");
-			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("POST_ID");
+			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -155,7 +157,7 @@ public class PostRepository {
 			var update = jdbcClient.sql(
 					"""
 						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?
-						WHERE POST_ID = ?
+						WHERE ID = ?
 						""")
 				.params(List.of(
 					postDTO.title(),
@@ -167,7 +169,7 @@ public class PostRepository {
 				))
 				.update(keyHolder);
 			Assert.state(update == 1, "Failed to update post " + postDTO.title());
-			Integer postId = (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("POST_ID");
+			Integer postId = (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 			return this.findById(postId);
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
@@ -175,29 +177,33 @@ public class PostRepository {
 	}
 
 	PostDTO findById(Integer id) {
-		return jdbcClient.sql(
-				"""
-					SELECT
-					P.CATEGORY,
-					P.CONTENT,
-					P.POSTED_ON,
-					P.EXCERPT,
-					P.FEATURED,
-					P.POSTER_CARD,
-					(P.ID) AS POST_ID,
-					P.STATUS,
-					P.TAGS,
-					P.TITLE,
-					P.LAST_UPDATED,
-					P.AUTHOR_ID,
-					A.USERNAME
-					FROM POSTS P JOIN USERS A
-					ON P.AUTHOR_ID = A.ID
-					WHERE P.STATUS ILIKE '%PUBLISHED'
-					AND P.ID = :ID
-					""")
-			.param("ID", id)
-			.query(PostDTO.class)
-			.single();
+		try {
+			return jdbcClient.sql(
+					"""
+						SELECT
+						P.CATEGORY,
+						P.CONTENT,
+						P.POSTED_ON,
+						P.EXCERPT,
+						P.FEATURED,
+						P.POSTER_CARD,
+						(P.ID) AS POST_ID,
+						P.STATUS,
+						P.TAGS,
+						P.TITLE,
+						P.LAST_UPDATED,
+						P.AUTHOR_ID,
+						A.USERNAME
+						FROM POSTS P JOIN USERS A
+						ON P.AUTHOR_ID = A.ID
+						WHERE P.STATUS ILIKE '%PUBLISHED'
+						AND P.ID = :ID
+						""")
+				.param("ID", id)
+				.query(PostDTO.class)
+				.single();
+		} catch (RuntimeException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

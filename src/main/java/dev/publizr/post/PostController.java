@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -20,64 +19,82 @@ public class PostController {
 	}
 
 	@GetMapping("")
-	List<PostDTO> list() {
-		return postRepository.findAll();
+	ResponseEntity<Map<String, Object>> list() {
+		List<PostDTO> postDTO = postRepository.list();
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", postDTO);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
-	PostDTO findById(@PathVariable Integer id) {
-		return postRepository.findById(id);
+	ResponseEntity<Map<String, Object>> findById(@PathVariable Integer id) {
+		PostDTO postDTO = postRepository.findById(id);
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", postDTO);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	@ResponseStatus(HttpStatus.CREATED)
-	@PostMapping("/new")
-	void create(@RequestBody Post post) {
-		postRepository.save(post);
+	@PostMapping("/publish")
+	ResponseEntity<Map<String, Object>> create(@RequestBody Post post) {
+		Integer postId = postRepository.save(post);
+		PostDTO newPost = postRepository.findById(postId);
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", newPost);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/author/{id}")
-	Optional<List<PostDTO>> getPostsBelongingToAuthorWithId(@PathVariable Integer id) {
-		return Optional.ofNullable(postRepository.getPostsBelongingToAuthorWithId(id));
+	ResponseEntity<Map<String, Object>> getPostsByAuthorId(@PathVariable Integer id) {
+		Map<String, Object> response = new HashMap<>();
+		List<PostDTO> postDTO = postRepository.getPostsByAuthorId(id);
+		response.put("success", true);
+		response.put("data", postDTO);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/recent")
-	Optional<List<PostDTO>> recent() {
-		return Optional.ofNullable(postRepository.getRecentPosts());
+	ResponseEntity<Map<String, Object>> recent() {
+		Map<String, Object> response = new HashMap<>();
+		List<PostDTO> postDTO = postRepository.getRecentPosts();
+		response.put("success", true);
+		response.put("data", postDTO);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
-	ResponseEntity<Map<String, String>> deletePostWithProvidedId(@PathVariable Integer id) {
+	ResponseEntity<Map<String, Object>> deletePostWithProvidedId(@PathVariable Integer id) {
+		Map<String, Object> response = new HashMap<>();
 		try {
 			Integer deletedPostId = postRepository.deletePostWithProvidedId(id);
 			if (deletedPostId < 0) throw new RuntimeException("Failed! Post was not deleted due to error.");
-			Map<String, String> map = new HashMap<>();
-			map.put("success", String.valueOf(true));
-			map.put("message", "Post deleted successfully");
-			return new ResponseEntity<>(map, HttpStatus.OK);
+			response.put("success", true);
+			response.put("message", "Post deleted successfully");
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			Map<String, String> map = new HashMap<>();
-			map.put("success", String.valueOf(false));
-			map.put("message", e.getLocalizedMessage());
-			return new ResponseEntity<>(map, HttpStatus.OK);
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
 	@PutMapping("/{id}")
-	ResponseEntity<Map<String, String>> updatePostWithProvidedPayload(@RequestBody PostDTO payload) {
+	ResponseEntity<Map<String, Object>> updatePostWithProvidedPayload(@RequestBody PostDTO payload) {
+		Map<String, Object> response = new HashMap<>();
 		try {
-			PostDTO updatedPost = postRepository.updatePostWithProvidedPayload(payload);
-			System.out.println(updatedPost);
-			if (updatedPost == null) throw new RuntimeException("failed to update post");
-			Map<String, String> map = new HashMap<>();
-			map.put("success", String.valueOf(true));
-			map.put("message", "Post updated successfully");
-//			map.put("data", "");
-			return new ResponseEntity<>(map, HttpStatus.OK);
+			PostDTO updated = postRepository.updatePostWithProvidedPayload(payload);
+			if (updated == null) throw new RuntimeException("failed to update post");
+			PostDTO postDTO = postRepository.findById(updated.post_id());
+			response.put("success", true);
+			response.put("message", "Post updated successfully");
+			response.put("data", postDTO);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			Map<String, String> map = new HashMap<>();
-			map.put("success", String.valueOf(false));
-			map.put("message", e.getLocalizedMessage());
-			return new ResponseEntity<>(map, HttpStatus.EXPECTATION_FAILED);
+			response.put("success", false);
+			response.put("message", "Error: could not update post, please try again");
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 }

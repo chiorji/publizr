@@ -21,32 +21,43 @@ public class UserController {
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
 	}
-	
-	@GetMapping("")
-	List<UserDTO> list() {
-		return userRepository.list();
+
+	@GetMapping("/list")
+	ResponseEntity<Map<String, Object>> list() {
+		Map<String, Object> responseMap = new HashMap<>();
+		List<UserDTO> userDTO = userRepository.list();
+
+		responseMap.put("success", true);
+		responseMap.put("data", userDTO);
+
+		return new ResponseEntity<>(responseMap, HttpStatus.OK);
 	}
 
 	@PostMapping("/login")
-	ResponseEntity<Map<String, String>> findById(@RequestBody LoginPayload payload) {
-		Map<String, String> responseMap = new HashMap<>();
+	ResponseEntity<Map<String, Object>> findById(@RequestBody LoginPayload payload) {
+		Map<String, Object> responseMap = new HashMap<>();
+
 		try {
 			LoginPayload loginPayload = new LoginPayload(payload.email(), payload.password());
 			UserDTO user = userRepository.findByEmailAndPassword(loginPayload);
 			String jwtToken = jwtService.generateJWTToken(user);
+
+			responseMap.put("success", true);
 			responseMap.put("token", jwtToken);
-			responseMap.put("success", String.valueOf(true));
+			responseMap.put("data", user);
+
 			return new ResponseEntity<>(responseMap, HttpStatus.OK);
 		} catch (Exception e) {
-			responseMap.put("success", String.valueOf(false));
-			responseMap.put("message", e.getLocalizedMessage());
+			responseMap.put("success", false);
+			responseMap.put("message", "INVALID USERNAME OR PASSWORD");
+
 			return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@PostMapping("/signup")
-	ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody UserSignUpPayload payload) {
-		Map<String, String> responseMap = new HashMap<>();
+	ResponseEntity<Map<String, Object>> signUp(@Valid @RequestBody UserSignUpPayload payload) {
+		Map<String, Object> responseMap = new HashMap<>();
 		Integer createdUserId = null;
 		try {
 			Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
@@ -60,8 +71,10 @@ public class UserController {
 				return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
 			}
 			createdUserId = userRepository.createUser(payload);
+			UserDTO userDTO = userRepository.findByUserId(createdUserId);
+			responseMap.put("data", userDTO);
 		} catch (RuntimeException e) {
-			responseMap.put("success", String.valueOf(false));
+			responseMap.put("success", false);
 			responseMap.put("message", String.format(e.getLocalizedMessage()));
 			return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
 		}
