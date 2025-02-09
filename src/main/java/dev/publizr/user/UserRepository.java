@@ -22,7 +22,7 @@ public class UserRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	void saveAll(List<SignUpDTO> signUpDTO) {
+	public void saveAll(List<SignUpDTO> signUpDTO) {
 		for (SignUpDTO payload : signUpDTO) {
 			this.createUser(payload);
 		}

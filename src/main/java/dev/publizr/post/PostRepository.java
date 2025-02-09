@@ -19,7 +19,7 @@ public class PostRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	void saveAll(List<Post> posts) {
+	public void saveAll(List<Post> posts) {
 		for (Post post : posts) {
 			this.save(post);
 		}
