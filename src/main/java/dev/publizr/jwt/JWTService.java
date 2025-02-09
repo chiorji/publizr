@@ -2,7 +2,8 @@ package dev.publizr.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import dev.publizr.constants.Constants;
 import dev.publizr.user.UserDTO;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,9 @@ import java.util.Date;
 
 @Service
 public class JWTService {
-	private final String SECRET_KEY = "APISECRETRANDOMKEY";
-	private final String TOKEN_ISSUER = "publizr";
+	Constants constants = new Constants();
+	String TOKEN_ISSUER = constants.TOKEN_ISSUER;
+	String SECRET_KEY = constants.SECRET_KEY;
 
 	public String generateJWTToken(UserDTO user) {
 		try {
@@ -25,28 +27,13 @@ public class JWTService {
 
 			return JWT.create()
 				.withIssuer(TOKEN_ISSUER)
-
 				.withClaim("id", user.id())
 				.withClaim("role", user.role())
 				.withClaim("username", user.username())
 				.withClaim("email", user.email())
 				.withExpiresAt(Date.from(instant))
 				.sign(algorithm);
-
-		} catch (RuntimeException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public String validateJWTToken(String jwtToken) {
-		try {
-			Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
-			return JWT.require(algorithm)
-				.withIssuer(TOKEN_ISSUER)
-				.build()
-				.verify(jwtToken)
-				.getToken();
-		} catch (JWTDecodeException e) {
+		} catch (JWTCreationException e) {
 			throw new RuntimeException(e);
 		}
 	}
