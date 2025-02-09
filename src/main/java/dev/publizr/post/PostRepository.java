@@ -69,7 +69,7 @@ public class PostRepository {
 		}
 	}
 
-	List<PostDTO> getByAuthorId(Integer id) {
+	List<PostDTO> byAuthorId(Integer id) {
 		try {
 			return jdbcClient.sql(
 				"""
@@ -172,7 +172,7 @@ public class PostRepository {
 		}
 	}
 
-	public PostDTO updatePostWithProvidedPayload(PostDTO postDTO) {
+	public PostDTO update(PostDTO postDTO) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(

@@ -1,5 +1,6 @@
 package dev.publizr.user.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 
 public record UserDTO(
 	@Id
+	@NotNull
 	Integer id,
 
 	@NotEmpty
@@ -18,8 +20,10 @@ public record UserDTO(
 	@NotNull
 	String email,
 
+	@NotEmpty
 	String role,
 
+	@Nullable
 	String image_url,
 
 	@NotNull

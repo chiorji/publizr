@@ -1,29 +1,30 @@
 package dev.publizr.user.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 public record User(
-	@NotEmpty
+	@Id
 	@NotNull
 	Integer id,
 
 	@NotEmpty
-	@NotNull
 	String username,
 
 	@NotEmpty
-	@NotNull
 	String email,
 
 	@NotEmpty
-	@NotNull
 	String password,
 
+	@NotEmpty
 	String role,
 
+	@Nullable
 	String image_url,
 
 	@NotNull

@@ -3,41 +3,43 @@ package dev.publizr.post.models;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 public record PostDTO(
 	@NotEmpty
-	@NotNull
 	String username,
 
+	@Id
+	@NotNull
 	Integer author_id,
 
+	@Id
+	@NotNull
 	Integer post_id,
 
+	@NotEmpty
 	String title,
 
+	@Nullable
 	String excerpt,
 
 	@NotEmpty
-	@NotNull
 	String content,
 
 	@NotEmpty
-	@Nullable
 	LocalDateTime posted_on,
 
 	@NotEmpty
-	@Nullable
 	LocalDateTime last_updated,
 
 	@NotEmpty
-	@NotNull
 	String category,
 
+	@Nullable
 	String tags,
 
-	@NotEmpty
 	@NotNull
 	String poster_card,
 

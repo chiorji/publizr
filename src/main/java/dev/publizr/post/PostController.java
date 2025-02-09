@@ -2,6 +2,7 @@ package dev.publizr.post;
 
 import dev.publizr.post.models.Post;
 import dev.publizr.post.models.PostDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class PostController {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "Error occurred while retrieving posts");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
@@ -46,13 +47,13 @@ public class PostController {
 		} catch (RuntimeException e) {
 
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "Could not retrieve information for post with ID " + id);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
 	@PostMapping("/publish")
-	ResponseEntity<Map<String, Object>> create(@RequestBody Post post) {
+	ResponseEntity<Map<String, Object>> create(@RequestBody @Valid Post post) {
 		Map<String, Object> response = new HashMap<>();
 
 		try {
@@ -64,22 +65,22 @@ public class PostController {
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		} catch (RuntimeException e) {
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "An error occurred while publishing post");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
 	@GetMapping("/author/{id}")
-	ResponseEntity<Map<String, Object>> getByAuthorId(@PathVariable Integer id) {
+	ResponseEntity<Map<String, Object>> byAuthorId(@PathVariable Integer id) {
 		Map<String, Object> response = new HashMap<>();
 		try {
-			List<PostDTO> postDTO = postRepository.getByAuthorId(id);
+			List<PostDTO> postDTO = postRepository.byAuthorId(id);
 			response.put("success", true);
 			response.put("data", postDTO);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "Post does not exist or might have been deleted");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
@@ -94,13 +95,13 @@ public class PostController {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "Error retrieving posts");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
 	@DeleteMapping("/{id}")
-	ResponseEntity<Map<String, Object>> deletePostWithProvidedId(@PathVariable Integer id) {
+	ResponseEntity<Map<String, Object>> deleteById(@PathVariable Integer id) {
 		Map<String, Object> response = new HashMap<>();
 		try {
 			Integer deletedPostId = postRepository.deleteById(id);
@@ -110,16 +111,16 @@ public class PostController {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
-			response.put("message", e.getLocalizedMessage());
+			response.put("message", "Failed to delete post");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
 	@PutMapping("/{id}")
-	ResponseEntity<Map<String, Object>> updatePostWithProvidedPayload(@RequestBody PostDTO payload) {
+	ResponseEntity<Map<String, Object>> update(@RequestBody @Valid PostDTO payload) {
 		Map<String, Object> response = new HashMap<>();
 		try {
-			PostDTO updated = postRepository.updatePostWithProvidedPayload(payload);
+			PostDTO updated = postRepository.update(payload);
 			if (updated == null) throw new RuntimeException("failed to update post");
 			PostDTO postDTO = postRepository.findById(updated.post_id());
 			response.put("success", true);

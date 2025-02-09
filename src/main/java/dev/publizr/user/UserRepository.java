@@ -46,13 +46,12 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 
-	public UserDTO findByEmailAndPassword(LoginDTO payload) {
+	public UserDTO validate(LoginDTO payload) {
 		try {
 			var user = jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
 				.param("EMAIL", payload.email())
 				.query(User.class)
 				.single();
-			System.out.println(user);
 			if (!BCrypt.checkpw(payload.password(), user.password())) {
 				throw new RuntimeException("HEY! THERE'S A CATCH - EITHER AN INVALID EMAIL OR PASSWORD");
 			}
@@ -70,7 +69,7 @@ public class UserRepository {
 		}
 	}
 
-	public Integer findUserByEmailAddress(final String email) {
+	public Integer findByEmail(final String email) {
 		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
 			.param("EMAIL", email).query(User.class).list().size();
 	}

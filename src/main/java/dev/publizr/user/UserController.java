@@ -27,64 +27,64 @@ public class UserController {
 
 	@GetMapping("/list")
 	ResponseEntity<Map<String, Object>> list() {
-		Map<String, Object> responseMap = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 		List<UserDTO> userDTO = userRepository.list();
 
-		responseMap.put("success", true);
-		responseMap.put("data", userDTO);
+		response.put("success", true);
+		response.put("data", userDTO);
 
-		return new ResponseEntity<>(responseMap, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/login")
-	ResponseEntity<Map<String, Object>> findById(@RequestBody LoginDTO payload) {
-		Map<String, Object> responseMap = new HashMap<>();
+	ResponseEntity<Map<String, Object>> findById(@Valid @RequestBody LoginDTO loginDTO) {
+		Map<String, Object> response = new HashMap<>();
 
 		try {
-			LoginDTO loginDTO = new LoginDTO(payload.email(), payload.password());
-			UserDTO user = userRepository.findByEmailAndPassword(loginDTO);
-			String jwtToken = jwtService.generateJWTToken(user);
+			UserDTO validatedDTO = userRepository.validate(loginDTO);
+			String jwtToken = jwtService.generateJWTToken(validatedDTO);
 
-			responseMap.put("success", true);
-			responseMap.put("token", jwtToken);
-			responseMap.put("data", user);
+			response.put("success", true);
+			response.put("token", jwtToken);
+			response.put("data", validatedDTO);
 
-			return new ResponseEntity<>(responseMap, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
-			responseMap.put("success", false);
-			responseMap.put("message", "INVALID USERNAME OR PASSWORD");
+			response.put("success", false);
+			response.put("message", "Invalid email and password combination");
 
-			return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@PostMapping("/signup")
-	ResponseEntity<Map<String, Object>> signUp(@Valid @RequestBody SignUpDTO payload) {
-		Map<String, Object> responseMap = new HashMap<>();
+	ResponseEntity<Map<String, Object>> signUp(@Valid @RequestBody SignUpDTO signUpDTO) {
+		Map<String, Object> response = new HashMap<>();
 		Integer createdUserId = null;
 		try {
 			Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-			if (!pattern.matcher(payload.email()).matches())
-				throw new RuntimeException(String.format("EMAIL '%S' IS INVALID", payload.email().toUpperCase()));
+			if (!pattern.matcher(signUpDTO.email()).matches())
+				throw new RuntimeException(String.format("Email '%s' is invalid", signUpDTO.email()));
 
-			Integer emailCount = userRepository.findUserByEmailAddress(payload.email());
+			Integer emailCount = userRepository.findByEmail(signUpDTO.email());
 			if (emailCount > 0) {
-				responseMap.put("success", String.valueOf(false));
-				responseMap.put("message", String.format("USER WITH EMAIL '%S' ALREADY EXIST", payload.email()));
-				return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
+				response.put("success", false);
+				response.put("message", String.format("User with email '%s' already exist", signUpDTO.email()));
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
-			createdUserId = userRepository.createUser(payload);
+			createdUserId = userRepository.createUser(signUpDTO);
 			UserDTO userDTO = userRepository.findByUserId(createdUserId);
-			responseMap.put("data", userDTO);
+			response.put("success", true);
+			response.put("data", userDTO);
 		} catch (RuntimeException e) {
-			responseMap.put("success", false);
-			responseMap.put("message", String.format(e.getLocalizedMessage()));
-			return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
+			response.put("success", false);
+			response.put("message", "Sign up failed, but don't fret - you can retry.");
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		UserDTO createdUser = userRepository.findByUserId(createdUserId);
 		String jwtToken = jwtService.generateJWTToken(createdUser);
-		responseMap.put("token", jwtToken);
-		return new ResponseEntity<>(responseMap, HttpStatus.CREATED);
+		response.put("token", jwtToken);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 }

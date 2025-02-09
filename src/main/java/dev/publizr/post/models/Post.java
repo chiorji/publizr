@@ -1,5 +1,6 @@
 package dev.publizr.post.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,21 +11,22 @@ public record Post(
 	@NotEmpty
 	String content,
 
+	@Nullable
 	String excerpt,
 
+	@Nullable
 	String poster_card,
 
+	@Nullable
 	String tags,
 
 	@NotEmpty
 	String status,
 
-	@NotEmpty
 	@NotNull
 	Integer author_id,
 
 	@NotEmpty
-	@NotNull
 	String category,
 
 	@NotNull
