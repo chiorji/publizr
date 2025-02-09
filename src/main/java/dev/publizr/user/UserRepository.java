@@ -1,5 +1,9 @@
 package dev.publizr.user;
 
+import dev.publizr.user.models.LoginDTO;
+import dev.publizr.user.models.SignUpDTO;
+import dev.publizr.user.models.User;
+import dev.publizr.user.models.UserDTO;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,7 +22,13 @@ public class UserRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	public Integer createUser(UserSignUpPayload user) {
+	void saveAll(List<SignUpDTO> signUpDTO) {
+		for (SignUpDTO payload : signUpDTO) {
+			this.createUser(payload);
+		}
+	}
+
+	public Integer createUser(SignUpDTO user) {
 		try {
 			String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt(10));
 			KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -36,7 +46,7 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 
-	public UserDTO findByEmailAndPassword(LoginPayload payload) {
+	public UserDTO findByEmailAndPassword(LoginDTO payload) {
 		try {
 			var user = jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
 				.param("EMAIL", payload.email())

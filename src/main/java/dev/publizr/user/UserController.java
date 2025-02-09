@@ -1,6 +1,9 @@
 package dev.publizr.user;
 
 import dev.publizr.jwt.JWTService;
+import dev.publizr.user.models.LoginDTO;
+import dev.publizr.user.models.SignUpDTO;
+import dev.publizr.user.models.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +37,12 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	ResponseEntity<Map<String, Object>> findById(@RequestBody LoginPayload payload) {
+	ResponseEntity<Map<String, Object>> findById(@RequestBody LoginDTO payload) {
 		Map<String, Object> responseMap = new HashMap<>();
 
 		try {
-			LoginPayload loginPayload = new LoginPayload(payload.email(), payload.password());
-			UserDTO user = userRepository.findByEmailAndPassword(loginPayload);
+			LoginDTO loginDTO = new LoginDTO(payload.email(), payload.password());
+			UserDTO user = userRepository.findByEmailAndPassword(loginDTO);
 			String jwtToken = jwtService.generateJWTToken(user);
 
 			responseMap.put("success", true);
@@ -56,7 +59,7 @@ public class UserController {
 	}
 
 	@PostMapping("/signup")
-	ResponseEntity<Map<String, Object>> signUp(@Valid @RequestBody UserSignUpPayload payload) {
+	ResponseEntity<Map<String, Object>> signUp(@Valid @RequestBody SignUpDTO payload) {
 		Map<String, Object> responseMap = new HashMap<>();
 		Integer createdUserId = null;
 		try {

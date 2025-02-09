@@ -1,5 +1,7 @@
 package dev.publizr.post;
 
+import dev.publizr.post.models.Post;
+import dev.publizr.post.models.PostDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,6 +17,12 @@ public class PostRepository {
 
 	public PostRepository(JdbcClient jdbcClient) {
 		this.jdbcClient = jdbcClient;
+	}
+
+	void saveAll(List<Post> posts) {
+		for (Post post : posts) {
+			this.save(post);
+		}
 	}
 
 	Integer save(Post post) {

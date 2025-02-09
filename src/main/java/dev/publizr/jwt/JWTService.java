@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import dev.publizr.constants.Constants;
-import dev.publizr.user.UserDTO;
+import dev.publizr.user.models.UserDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

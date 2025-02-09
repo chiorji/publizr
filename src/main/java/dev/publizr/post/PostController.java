@@ -1,5 +1,7 @@
 package dev.publizr.post;
 
+import dev.publizr.post.models.Post;
+import dev.publizr.post.models.PostDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

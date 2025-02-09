@@ -1,13 +1,9 @@
-package dev.publizr.user;
+package dev.publizr.user.models;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-public record UserSignUpPayload(
-	@NotEmpty
-	@NotNull
-	String username,
-
+public record LoginDTO(
 	@NotEmpty
 	@NotNull
 	String email,
@@ -15,4 +11,5 @@ public record UserSignUpPayload(
 	@NotEmpty
 	@NotNull
 	String password
-) {}
+) {
+}

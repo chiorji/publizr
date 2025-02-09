@@ -1,13 +1,13 @@
-package dev.publizr.user;
+package dev.publizr.user.models;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
-public record User(
-	@NotEmpty
-	@NotNull
+public record UserDTO(
+	@Id
 	Integer id,
 
 	@NotEmpty
@@ -18,10 +18,6 @@ public record User(
 	@NotNull
 	String email,
 
-	@NotEmpty
-	@NotNull
-	String password,
-
 	String role,
 
 	String image_url,
@@ -31,6 +27,5 @@ public record User(
 
 	@NotNull
 	LocalDateTime updated_at
-
 ) {
 }
