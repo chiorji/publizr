@@ -33,8 +33,15 @@ public class PostRepository {
 						VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 					""")
 			.params(List.of(
-				post.title(), post.excerpt(), post.content(), post.author_id(), post.category(),
-				post.poster_card(), post.featured(), post.tags(), post.status()
+				post.title(),
+				post.excerpt(),
+				post.content(),
+				post.author_id(),
+				post.category(),
+				post.poster_card(),
+				post.featured(),
+				post.tags(),
+				post.status()
 			))
 			.update(keyHolder);
 		Assert.state(created == 1, "Failed to publish post " + post.title());
@@ -178,15 +185,16 @@ public class PostRepository {
 			var update = jdbcClient.sql(
 					"""
 						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?
-						WHERE ID = ?
+						WHERE ID = ? AND AUTHOR_ID = ?
 						""")
 				.params(List.of(
 					postDTO.title(),
-					postDTO.excerpt(),
+					Objects.requireNonNull(postDTO.excerpt()),
 					postDTO.content(),
 					postDTO.category(),
-					postDTO.tags(),
-					postDTO.post_id()
+					Objects.requireNonNull(postDTO.tags()),
+					postDTO.post_id(),
+					postDTO.author_id()
 				))
 				.update(keyHolder);
 			Assert.state(update == 1, "Failed to update post " + postDTO.title());

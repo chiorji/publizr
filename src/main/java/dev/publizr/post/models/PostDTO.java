@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -28,10 +29,10 @@ public record PostDTO(
 	@NotEmpty
 	String content,
 
-	@NotEmpty
+	@DateTimeFormat
 	LocalDateTime posted_on,
 
-	@NotEmpty
+	@DateTimeFormat
 	LocalDateTime last_updated,
 
 	@NotEmpty

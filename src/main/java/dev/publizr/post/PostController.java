@@ -32,7 +32,7 @@ public class PostController {
 		} catch (RuntimeException e) {
 			response.put("success", false);
 			response.put("message", "Error occurred while retrieving posts");
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class PostController {
 
 			response.put("success", false);
 			response.put("message", "Could not retrieve information for post with ID " + id);
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class PostController {
 		} catch (RuntimeException e) {
 			response.put("success", false);
 			response.put("message", "An error occurred while publishing post");
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class PostController {
 		} catch (RuntimeException e) {
 			response.put("success", false);
 			response.put("message", "Post does not exist or might have been deleted");
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class PostController {
 		} catch (RuntimeException e) {
 			response.put("success", false);
 			response.put("message", "Error retrieving posts");
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
@@ -112,20 +112,18 @@ public class PostController {
 		} catch (RuntimeException e) {
 			response.put("success", false);
 			response.put("message", "Failed to delete post");
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
 	@PutMapping("/{id}")
-	ResponseEntity<Map<String, Object>> update(@RequestBody @Valid PostDTO payload) {
+	ResponseEntity<Map<String, Object>> update(@RequestBody @Valid PostDTO postDTO) {
 		Map<String, Object> response = new HashMap<>();
 		try {
-			PostDTO updated = postRepository.update(payload);
-			if (updated == null) throw new RuntimeException("failed to update post");
-			PostDTO postDTO = postRepository.findById(updated.post_id());
+			PostDTO postDTO1 = postRepository.update(postDTO);
 			response.put("success", true);
 			response.put("message", "Post updated successfully");
-			response.put("data", postDTO);
+			response.put("data", postDTO1);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
