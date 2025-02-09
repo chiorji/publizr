@@ -34,111 +34,124 @@ public class PostRepository {
 	}
 
 	List<PostDTO> list() {
-		return jdbcClient.sql(
-			"""
-				SELECT
-				P.AUTHOR_ID,
-				P.CATEGORY,
-				P.CONTENT,
-				P.POSTED_ON,
-				P.EXCERPT,
-				P.FEATURED,
-				P.POSTER_CARD,
-				(P.ID) AS POST_ID,
-				P.STATUS,
-				P.TAGS,
-				P.TITLE,
-				P.LAST_UPDATED,
-				A.USERNAME
-				FROM POSTS P JOIN USERS A
-				ON P.STATUS ILIKE '%PUBLISHED'
-				ORDER BY P.POSTED_ON"""
-		).query(PostDTO.class).list();
-	}
-
-	List<PostDTO> getPostsByAuthorId(Integer id) {
-		return jdbcClient.sql(
-			"""
-				SELECT
-				P.AUTHOR_ID,
-				P.CATEGORY,
-				P.CONTENT,
-				P.POSTED_ON,
-				P.EXCERPT,
-				P.FEATURED,
-				P.POSTER_CARD,
-				(P.ID) AS POST_ID,
-				P.STATUS,
-				P.TAGS,
-				P.TITLE,
-				P.LAST_UPDATED,
-				A.USERNAME
-				FROM POSTS P JOIN USERS A
-				ON P.AUTHOR_ID = :ID
-				AND P.STATUS ILIKE '%PUBLISHED'
-				ORDER BY P.POSTED_ON"""
-		).param("ID", id).query(PostDTO.class).stream().toList();
-	}
-
-	public List<PostDTO> getRecentPosts() {
-		return jdbcClient.sql(
-			"""
-				(
+		try {
+			return jdbcClient.sql(
+				"""
 					SELECT
-				 	    P.AUTHOR_ID,
-						P.FEATURED,
-						P.CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						P.POSTER_CARD,
-						P.ID AS POST_ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						U.USERNAME
-					FROM
-						POSTS P
-						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-					WHERE
-						P.STATUS ILIKE '%PUBLISHED'
-						AND P.FEATURED = TRUE
-					ORDER BY
-						P.POSTED_ON
-					LIMIT
-						1
-				)
-				UNION ALL
-				(
-					SELECT
-					    P.AUTHOR_ID,
-						P.FEATURED,
-						P.CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						P.POSTER_CARD,
-						P.ID AS POST_ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						U.USERNAME
-					FROM
-						POSTS P
-						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-					WHERE
-						P.STATUS ILIKE '%PUBLISHED'
-						AND P.FEATURED = FALSE
-					ORDER BY
-						P.POSTED_ON
-					LIMIT
-						9
-				)""").query(PostDTO.class).stream().toList();
+					P.AUTHOR_ID,
+					P.CATEGORY,
+					P.CONTENT,
+					P.POSTED_ON,
+					P.EXCERPT,
+					P.FEATURED,
+					P.POSTER_CARD,
+					(P.ID) AS POST_ID,
+					P.STATUS,
+					P.TAGS,
+					P.TITLE,
+					P.LAST_UPDATED,
+					A.USERNAME
+					FROM POSTS P JOIN USERS A
+					ON P.STATUS ILIKE '%PUBLISHED'
+					ORDER BY P.POSTED_ON"""
+			).query(PostDTO.class).list();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to retrieve posts");
+		}
 	}
 
-	public Integer deletePostWithProvidedId(Integer id) {
+	List<PostDTO> getByAuthorId(Integer id) {
+		try {
+			return jdbcClient.sql(
+				"""
+					SELECT
+					P.AUTHOR_ID,
+					P.CATEGORY,
+					P.CONTENT,
+					P.POSTED_ON,
+					P.EXCERPT,
+					P.FEATURED,
+					P.POSTER_CARD,
+					(P.ID) AS POST_ID,
+					P.STATUS,
+					P.TAGS,
+					P.TITLE,
+					P.LAST_UPDATED,
+					A.USERNAME
+					FROM POSTS P JOIN USERS A
+					ON P.AUTHOR_ID = :ID
+					AND P.STATUS ILIKE '%PUBLISHED'
+					ORDER BY P.POSTED_ON"""
+			).param("ID", id).query(PostDTO.class).stream().toList();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<PostDTO> recent() {
+		try {
+			return jdbcClient.sql(
+				"""
+					(
+						SELECT
+					 	    P.AUTHOR_ID,
+							P.FEATURED,
+							P.CATEGORY,
+							P.CONTENT,
+							P.POSTED_ON,
+							P.EXCERPT,
+							P.POSTER_CARD,
+							P.ID AS POST_ID,
+							P.STATUS,
+							P.TAGS,
+							P.TITLE,
+							P.LAST_UPDATED,
+							U.USERNAME
+						FROM
+							POSTS P
+							INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+						WHERE
+							P.STATUS ILIKE '%PUBLISHED'
+							AND P.FEATURED = TRUE
+						ORDER BY
+							P.POSTED_ON
+						LIMIT
+							1
+					)
+					UNION ALL
+					(
+						SELECT
+						    P.AUTHOR_ID,
+							P.FEATURED,
+							P.CATEGORY,
+							P.CONTENT,
+							P.POSTED_ON,
+							P.EXCERPT,
+							P.POSTER_CARD,
+							P.ID AS POST_ID,
+							P.STATUS,
+							P.TAGS,
+							P.TITLE,
+							P.LAST_UPDATED,
+							U.USERNAME
+						FROM
+							POSTS P
+							INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+						WHERE
+							P.STATUS ILIKE '%PUBLISHED'
+							AND P.FEATURED = FALSE
+						ORDER BY
+							P.POSTED_ON
+						LIMIT
+							9
+					)""").query(PostDTO.class).stream().toList();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Integer deleteById(Integer id) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE ID = :ID")

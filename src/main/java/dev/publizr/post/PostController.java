@@ -20,55 +20,88 @@ public class PostController {
 
 	@GetMapping("")
 	ResponseEntity<Map<String, Object>> list() {
-		List<PostDTO> postDTO = postRepository.list();
 		Map<String, Object> response = new HashMap<>();
-		response.put("success", true);
-		response.put("data", postDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		try {
+			List<PostDTO> postDTO = postRepository.list();
+			response.put("success", true);
+			response.put("data", postDTO);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (RuntimeException e) {
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	@GetMapping("/{id}")
 	ResponseEntity<Map<String, Object>> findById(@PathVariable Integer id) {
-		PostDTO postDTO = postRepository.findById(id);
 		Map<String, Object> response = new HashMap<>();
-		response.put("success", true);
-		response.put("data", postDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		try {
+			PostDTO postDTO = postRepository.findById(id);
+			response.put("success", true);
+			response.put("data", postDTO);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (RuntimeException e) {
+
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	@PostMapping("/publish")
 	ResponseEntity<Map<String, Object>> create(@RequestBody Post post) {
-		Integer postId = postRepository.save(post);
-		PostDTO newPost = postRepository.findById(postId);
 		Map<String, Object> response = new HashMap<>();
-		response.put("success", true);
-		response.put("data", newPost);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+		try {
+			Integer postId = postRepository.save(post);
+			PostDTO newPost = postRepository.findById(postId);
+
+			response.put("success", true);
+			response.put("data", newPost);
+			return new ResponseEntity<>(response, HttpStatus.CREATED);
+		} catch (RuntimeException e) {
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	@GetMapping("/author/{id}")
-	ResponseEntity<Map<String, Object>> getPostsByAuthorId(@PathVariable Integer id) {
+	ResponseEntity<Map<String, Object>> getByAuthorId(@PathVariable Integer id) {
 		Map<String, Object> response = new HashMap<>();
-		List<PostDTO> postDTO = postRepository.getPostsByAuthorId(id);
-		response.put("success", true);
-		response.put("data", postDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		try {
+			List<PostDTO> postDTO = postRepository.getByAuthorId(id);
+			response.put("success", true);
+			response.put("data", postDTO);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (RuntimeException e) {
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	@GetMapping("/recent")
 	ResponseEntity<Map<String, Object>> recent() {
 		Map<String, Object> response = new HashMap<>();
-		List<PostDTO> postDTO = postRepository.getRecentPosts();
-		response.put("success", true);
-		response.put("data", postDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		try {
+			List<PostDTO> postDTO = postRepository.recent();
+			response.put("success", true);
+			response.put("data", postDTO);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (RuntimeException e) {
+			response.put("success", false);
+			response.put("message", e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	ResponseEntity<Map<String, Object>> deletePostWithProvidedId(@PathVariable Integer id) {
 		Map<String, Object> response = new HashMap<>();
 		try {
-			Integer deletedPostId = postRepository.deletePostWithProvidedId(id);
+			Integer deletedPostId = postRepository.deleteById(id);
 			if (deletedPostId < 0) throw new RuntimeException("Failed! Post was not deleted due to error.");
 			response.put("success", true);
 			response.put("message", "Post deleted successfully");

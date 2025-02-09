@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 @EnableAutoConfiguration()
 public class Application {
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
@@ -32,7 +32,7 @@ public class Application {
 		FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<>();
 		JWTFilter jwtFilter = new JWTFilter();
 		registrationBean.setFilter(jwtFilter);
-		registrationBean.addUrlPatterns("/api/posts/new");
+		registrationBean.addUrlPatterns("/api/posts/publish");
 		registrationBean.addUrlPatterns("/api/users/list");
 		return registrationBean;
 	}
