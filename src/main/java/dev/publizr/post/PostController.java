@@ -28,6 +28,7 @@ public class PostController {
 			List<PostDTO> postDTO = postRepository.list();
 			response.put("success", true);
 			response.put("data", postDTO);
+			response.put("total", postDTO.size());
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);
@@ -92,6 +93,7 @@ public class PostController {
 			List<PostDTO> postDTO = postRepository.recent();
 			response.put("success", true);
 			response.put("data", postDTO);
+			response.put("total", postDTO.size());
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			response.put("success", false);

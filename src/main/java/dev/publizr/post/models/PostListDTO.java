@@ -1,0 +1,1 @@
+package dev.publizr.post.models;import java.util.List;public record PostListDTO(List<Post> posts) {}

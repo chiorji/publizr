@@ -1,0 +1,1 @@
+package dev.publizr.user.models;import java.util.List;public record SignUpListDTO(List<SignUpDTO> users) {}

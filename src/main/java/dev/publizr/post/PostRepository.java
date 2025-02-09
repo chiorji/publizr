@@ -25,7 +25,7 @@ public class PostRepository {
 		}
 	}
 
-	Integer save(Post post) {
+	public Integer save(Post post) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		var created = jdbcClient.sql(
 				"""
@@ -48,7 +48,7 @@ public class PostRepository {
 		return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 	}
 
-	List<PostDTO> list() {
+	public List<PostDTO> list() {
 		try {
 			return jdbcClient.sql(
 				"""
