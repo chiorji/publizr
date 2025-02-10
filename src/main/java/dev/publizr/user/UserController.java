@@ -127,6 +127,7 @@ public class UserController {
 			Integer emailCount = userRepository.findByEmail(signUpDTO.email());
 
 			if (emailCount > 0) {
+				log.error("User with email address '{}' already exist", signUpDTO.email());
 				APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, String.format("User with email address '%s' already exist", signUpDTO.email()), null, 0);
 				return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 			}
