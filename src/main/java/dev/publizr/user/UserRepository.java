@@ -9,11 +9,13 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
 
+@Transactional
 @Repository
 public class UserRepository {
 	private final JdbcClient jdbcClient;
@@ -77,5 +79,12 @@ public class UserRepository {
 	public UserDTO findByUserId(Integer id) {
 		return jdbcClient.sql("SELECT * FROM USERS WHERE ID = :ID")
 			.param("ID", id).query(UserDTO.class).single();
+	}
+
+	public Integer totalEntries() {
+		return jdbcClient.sql(
+			"""
+					SELECT COUNT(*) FROM USERS
+				""").query(Integer.class).single();
 	}
 }

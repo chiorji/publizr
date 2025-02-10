@@ -3,6 +3,7 @@ package dev.publizr.post.models;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jdk.jfr.BooleanFlag;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
@@ -46,7 +47,7 @@ public record PostDTO(
 	@NotEmpty
 	String status,
 
-	@NotNull
+	@BooleanFlag
 	Boolean featured
 ) {
 }

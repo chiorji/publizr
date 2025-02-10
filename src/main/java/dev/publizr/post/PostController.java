@@ -3,6 +3,7 @@ package dev.publizr.post;
 import dev.publizr.post.models.Post;
 import dev.publizr.post.models.PostDTO;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
+@CacheEvict(value = "posts", allEntries = true)
 public class PostController {
 
 	private final PostRepository postRepository;

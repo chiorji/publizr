@@ -5,6 +5,7 @@ import dev.publizr.user.models.LoginDTO;
 import dev.publizr.user.models.SignUpDTO;
 import dev.publizr.user.models.UserDTO;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/users")
+@CacheEvict(value = "users", allEntries = true)
 public class UserController {
 	private final UserRepository userRepository;
 	private final JWTService jwtService;

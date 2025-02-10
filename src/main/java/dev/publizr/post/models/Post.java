@@ -3,6 +3,7 @@ package dev.publizr.post.models;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jdk.jfr.BooleanFlag;
 
 public record Post(
 	@NotEmpty
@@ -29,7 +30,7 @@ public record Post(
 	@NotEmpty
 	String category,
 
-	@NotNull
+	@BooleanFlag
 	Boolean featured
 ) {
 }

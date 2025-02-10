@@ -6,11 +6,13 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
 
+@Transactional
 @Repository
 public class PostRepository {
 	private final JdbcClient jdbcClient;
@@ -98,7 +100,7 @@ public class PostRepository {
 					ON P.AUTHOR_ID = :ID
 					AND P.STATUS ILIKE '%PUBLISHED'
 					ORDER BY P.POSTED_ON"""
-			).param("ID", id).query(PostDTO.class).stream().toList();
+			).param("ID", id).query(PostDTO.class).list();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -130,9 +132,8 @@ public class PostRepository {
 							P.STATUS ILIKE '%PUBLISHED'
 							AND P.FEATURED = TRUE
 						ORDER BY
-							P.POSTED_ON
-						LIMIT
-							1
+							P.POSTED_ON DESC
+						LIMIT	1
 					)
 					UNION ALL
 					(
@@ -157,10 +158,9 @@ public class PostRepository {
 							P.STATUS ILIKE '%PUBLISHED'
 							AND P.FEATURED = FALSE
 						ORDER BY
-							P.POSTED_ON
-						LIMIT
-							9
-					)""").query(PostDTO.class).stream().toList();
+							P.POSTED_ON DESC
+						LIMIT	9
+					)""").query(PostDTO.class).list();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -234,5 +234,12 @@ public class PostRepository {
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Integer totalEntries() {
+		return jdbcClient.sql(
+			"""
+					SELECT COUNT(*) FROM POSTS
+				""").query(Integer.class).single();
 	}
 }
