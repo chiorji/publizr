@@ -1,7 +1,12 @@
 package dev.publizr.post;
 
+import dev.publizr.models.APIResponseDTO;
 import dev.publizr.post.models.Post;
 import dev.publizr.post.models.PostDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
@@ -24,18 +29,29 @@ public class PostController {
 	}
 
 	@GetMapping("")
-	ResponseEntity<Map<String, Object>> list() {
-		Map<String, Object> response = new HashMap<>();
+	@Operation(
+		summary = "Get the list of publications",
+		description = "This endpoint returns the list of all the publication on the platform",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Publications retrieved",
+				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+			@ApiResponse(
+				responseCode = "400",
+				description = "Failed to retieve publications",
+				content = @Content
+			)
+		}
+	)
+	ResponseEntity<APIResponseDTO<List<PostDTO>>> list() {
 		try {
 			List<PostDTO> postDTO = postRepository.list();
-			response.put("success", true);
-			response.put("data", postDTO);
-			response.put("total", postDTO.size());
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
+			return ResponseEntity.ok(responseDTO);
 		} catch (RuntimeException e) {
-			response.put("success", false);
-			response.put("message", "Error occurred while retrieving posts");
-			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+			APIResponseDTO<List<PostDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
+			return ResponseEntity.badRequest().body(errorResponse);
 		}
 	}
 

@@ -38,3 +38,14 @@ Basic blogging REST API powered by Spring Boot
  # run SQL CMDS
  SELECT * FROM USERS;
 ```
+
+```bash
+# default server port
+server.port=8080
+
+# Swagger UI API Documentation
+http://localhost:8080/swagger-ui/index.html
+
+# OpenAPI Documentation
+# http://localhost:8080/publizr/api-docs
+```

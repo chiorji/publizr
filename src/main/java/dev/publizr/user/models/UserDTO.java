@@ -1,5 +1,6 @@
 package dev.publizr.user.models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "User Data Transfer Object")
 public record UserDTO(
 	@Id
 	@NotNull
