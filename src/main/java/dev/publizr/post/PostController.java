@@ -39,7 +39,7 @@ public class PostController {
 				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
-				description = "Failed to retieve publications",
+				description = "Failed to retrieve publications",
 				content = @Content
 			)
 		}

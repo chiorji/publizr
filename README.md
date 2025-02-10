@@ -47,5 +47,5 @@ server.port=8080
 http://localhost:8080/swagger-ui/index.html
 
 # OpenAPI Documentation
-# http://localhost:8080/publizr/api-docs
+ http://localhost:8080/publizr/api-docs
 ```
