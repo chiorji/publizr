@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Request body for signup")
 public record SignUpDTO(
 	@NotEmpty
 	@Size(min = 4, message = "username should be a minimum of 4 characters")

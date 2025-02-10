@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Request body for login")
 public record LoginDTO(
 	@NotEmpty
 	@Email
