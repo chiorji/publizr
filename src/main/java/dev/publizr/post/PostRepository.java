@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -184,7 +185,7 @@ public class PostRepository {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
 					"""
-						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?
+						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?,
 						WHERE ID = ? AND AUTHOR_ID = ?
 						""")
 				.params(List.of(
@@ -193,6 +194,7 @@ public class PostRepository {
 					postDTO.content(),
 					postDTO.category(),
 					Objects.requireNonNull(postDTO.tags()),
+					LocalDateTime.now(),
 					postDTO.post_id(),
 					postDTO.author_id()
 				))

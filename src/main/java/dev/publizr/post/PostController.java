@@ -5,6 +5,7 @@ import dev.publizr.post.models.Post;
 import dev.publizr.post.models.PostDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,7 +61,8 @@ public class PostController {
 		}
 	}
 
-
+	
+	@GetMapping("/{id}")
 	@Operation(
 		summary = "Post by ID",
 		description = "This retrieves a single post with the specified ID",
@@ -76,7 +78,6 @@ public class PostController {
 			)
 		}
 	)
-	@GetMapping("/{id}")
 	ResponseEntity<APIResponseDTO<PostDTO>> findById(@PathVariable @Parameter(name = "ID", description = "Post ID") Integer id) {
 		try {
 			PostDTO postDTO = postRepository.findById(id);
@@ -89,22 +90,24 @@ public class PostController {
 		}
 	}
 
+
+	@PostMapping("/publish")
 	@Operation(
-		summary = "Post by ID",
-		description = "This retrieves a single post with the specified ID",
+		summary = "Publish a post",
+		description = "Publishes a post",
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication retrieved",
+				description = "Publication successful",
 				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
-				description = "Failed to retrieve publication",
+				description = "Failed to publish",
 				content = @Content
 			)
 		}
 	)
-	@PostMapping("/publish")
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED, defaultValue = "token"))
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
 		try {
 			Integer postId = postRepository.save(post);
@@ -119,6 +122,7 @@ public class PostController {
 	}
 
 
+	@GetMapping("/author/{id}")
 	@Operation(
 		summary = "Post by author ID",
 		description = "This retrieves posts published by an author",
@@ -134,7 +138,7 @@ public class PostController {
 			)
 		}
 	)
-	@GetMapping("/author/{id}")
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED))
 	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable @Parameter(name = "id", description = "author's id") Integer id) {
 		try {
 			List<PostDTO> postDTO = postRepository.byAuthorId(id);
@@ -147,7 +151,7 @@ public class PostController {
 		}
 	}
 
-
+	@GetMapping("/recent")
 	@Operation(
 		summary = "Get top 10 recent post",
 		description = "This retrieves top 10 most-recent posts published",
@@ -163,7 +167,6 @@ public class PostController {
 			)
 		}
 	)
-	@GetMapping("/recent")
 	ResponseEntity<APIResponseDTO<List<PostDTO>>> recent() {
 		try {
 			List<PostDTO> postDTO = postRepository.recent();
@@ -176,7 +179,7 @@ public class PostController {
 		}
 	}
 
-
+	@DeleteMapping("/{id}")
 	@Operation(
 		summary = "Delete a post",
 		description = "Delete a post associated to the ID provided as parameter",
@@ -192,7 +195,6 @@ public class PostController {
 			)
 		}
 	)
-	@DeleteMapping("/{id}")
 	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable @Parameter(name = "id", description = "Id of the post to be deleted") Integer id) {
 		try {
 			Integer deletedPostId = postRepository.deleteById(id);
@@ -207,6 +209,7 @@ public class PostController {
 	}
 
 
+	@PutMapping("/{id}")
 	@Operation(
 		summary = "Update a post",
 		description = "Update a post associated to the ID provided as parameter",
@@ -222,7 +225,6 @@ public class PostController {
 			)
 		}
 	)
-	@PutMapping("/{id}")
 	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid @Parameter(name = "id", description = "Id of the post to be updated") PostDTO postDTO) {
 		try {
 			PostDTO postDTO1 = postRepository.update(postDTO);

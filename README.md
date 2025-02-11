@@ -1,9 +1,9 @@
 # Publizr Backend
 
-Basic blogging REST API powered by Spring Boot
+API developed as part of my Student Industrial Work Experience Scheme(SIWES) project.
+Technology used include but not limited to SpringBoot, JDBC, RESTful API, Spring Security, JWT, PostgresSQL.
 
-### Steps to run db script
-
+### Manual database seeding
 ```bash
   # create container
   docker container run --name <container-name> -e POSTGRES_PASSWORD=password -d -p 5431:5431 postgres:latest

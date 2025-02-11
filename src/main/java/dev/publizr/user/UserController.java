@@ -37,6 +37,8 @@ public class UserController {
 		this.jwtService = jwtService;
 	}
 
+
+	@GetMapping("/list")
 	@Operation(
 		summary = "Get the list of users",
 		description = "This endpoint returns the list of all users signed up on the platform",
@@ -53,7 +55,6 @@ public class UserController {
 		}
 	)
 
-	@GetMapping("/list")
 	ResponseEntity<APIResponseDTO<List<UserDTO>>> list() {
 		try {
 			List<UserDTO> userDTO = userRepository.list();
@@ -67,6 +68,7 @@ public class UserController {
 	}
 
 
+	@PostMapping("/login")
 	@Operation(
 		summary = "User login",
 		description = "A registered user can sign in to publish",
@@ -83,7 +85,6 @@ public class UserController {
 		}
 	)
 
-	@PostMapping("/login")
 	ResponseEntity<APIResponseDTO<Map<String, Object>>> findById(@Valid @RequestBody LoginDTO loginDTO) {
 		Map<String, Object> dataMap = new HashMap<>();
 		try {
@@ -100,6 +101,8 @@ public class UserController {
 		}
 	}
 
+
+	@PostMapping("/signup")
 	@Operation(
 		summary = "User signup",
 		description = "Onboards a new user to the platform, after which they have author's privilege to publish",
@@ -115,8 +118,6 @@ public class UserController {
 			)
 		}
 	)
-
-	@PostMapping("/signup")
 	ResponseEntity<APIResponseDTO<Map<String, Object>>> signUp(@Valid @RequestBody SignUpDTO signUpDTO) {
 
 		try {
