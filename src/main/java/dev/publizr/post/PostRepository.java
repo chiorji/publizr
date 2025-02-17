@@ -23,9 +23,7 @@ public class PostRepository {
 	}
 
 	public void saveAll(List<Post> posts) {
-		for (Post post : posts) {
-			this.save(post);
-		}
+		posts.forEach(this::save);
 	}
 
 	public Integer save(Post post) {
@@ -56,22 +54,25 @@ public class PostRepository {
 			return jdbcClient.sql(
 				"""
 					SELECT
-					P.AUTHOR_ID,
-					P.CATEGORY,
-					P.CONTENT,
-					P.POSTED_ON,
-					P.EXCERPT,
-					P.FEATURED,
-					P.POSTER_CARD,
-					(P.ID) AS POST_ID,
-					P.STATUS,
-					P.TAGS,
-					P.TITLE,
-					P.LAST_UPDATED,
-					A.USERNAME
-					FROM POSTS P JOIN USERS A
-					ON P.STATUS ILIKE '%PUBLISHED'
-					ORDER BY P.POSTED_ON"""
+						P.AUTHOR_ID,
+						P.CATEGORY,
+						P.CONTENT,
+						P.POSTED_ON,
+						P.EXCERPT,
+						P.FEATURED,
+						P.POSTER_CARD,
+						(P.ID) AS POST_ID,
+						P.STATUS,
+						P.TAGS,
+						P.TITLE,
+						P.LAST_UPDATED,
+						A.USERNAME
+					FROM
+						POSTS P
+						JOIN USERS A ON P.STATUS ILIKE '%PUBLISHED'
+					ORDER BY
+						P.POSTED_ON
+					"""
 			).query(PostDTO.class).list();
 
 		} catch (Exception e) {
@@ -238,10 +239,7 @@ public class PostRepository {
 		}
 	}
 
-	public Integer totalEntries() {
-		return jdbcClient.sql(
-			"""
-					SELECT COUNT(*) FROM POSTS
-				""").query(Integer.class).single();
+	public List<PostDTO> totalEntries() {
+		return jdbcClient.sql("SELECT * FROM POSTS").query(PostDTO.class).list();
 	}
 }

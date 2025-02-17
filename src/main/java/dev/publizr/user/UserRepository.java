@@ -25,9 +25,7 @@ public class UserRepository {
 	}
 
 	public void saveAll(List<SignUpDTO> signUpDTO) {
-		for (SignUpDTO payload : signUpDTO) {
-			this.createUser(payload);
-		}
+		signUpDTO.forEach(this::createUser);
 	}
 
 	public Integer createUser(SignUpDTO user) {
@@ -81,10 +79,7 @@ public class UserRepository {
 			.param("ID", id).query(UserDTO.class).single();
 	}
 
-	public Integer totalEntries() {
-		return jdbcClient.sql(
-			"""
-					SELECT COUNT(*) FROM USERS
-				""").query(Integer.class).single();
+	public List<UserDTO> totalEntries() {
+		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
 	}
 }

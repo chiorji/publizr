@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.PrintStream;
 import java.util.List;
 
 @RestController
@@ -55,9 +56,10 @@ public class PostController {
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
 			return ResponseEntity.ok(responseDTO);
 		} catch (RuntimeException e) {
+			e.printStackTrace();
 			log.error("Fetching post list failed -- '{}'", e.getLocalizedMessage());
 			APIResponseDTO<List<PostDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
-			return ResponseEntity.badRequest().body(errorResponse);
+			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -231,6 +233,7 @@ public class PostController {
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
+			e.printStackTrace((PrintStream) log);
 			log.error("Updating a post failed -- '{}'", e.getLocalizedMessage());
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "Error: could not update post, please try again", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
