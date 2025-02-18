@@ -24,7 +24,7 @@ public record PostDTO(
 	@Id
 	@NotNull
 	@Schema(description = "An identifier for the post")
-	Integer post_id,
+	Integer id,
 
 	@NotEmpty
 	@Schema(description = "This is the post's title")

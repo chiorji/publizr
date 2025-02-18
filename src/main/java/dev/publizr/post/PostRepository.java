@@ -61,7 +61,7 @@ public class PostRepository {
 						P.EXCERPT,
 						P.FEATURED,
 						P.POSTER_CARD,
-						(P.ID) AS POST_ID,
+						P.ID,
 						P.STATUS,
 						P.TAGS,
 						P.TITLE,
@@ -91,7 +91,7 @@ public class PostRepository {
 					P.EXCERPT,
 					P.FEATURED,
 					P.POSTER_CARD,
-					(P.ID) AS POST_ID,
+					(P.ID),
 					P.STATUS,
 					P.TAGS,
 					P.TITLE,
@@ -113,14 +113,14 @@ public class PostRepository {
 				"""
 					(
 						SELECT
-					 	   P.AUTHOR_ID,
+					 	  P.AUTHOR_ID,
 							P.FEATURED,
 							P.CATEGORY,
 							P.CONTENT,
 							P.POSTED_ON,
 							P.EXCERPT,
 							P.POSTER_CARD,
-							P.ID AS POST_ID,
+							P.ID,
 							P.STATUS,
 							P.TAGS,
 							P.TITLE,
@@ -139,14 +139,14 @@ public class PostRepository {
 					UNION ALL
 					(
 						SELECT
-						    P.AUTHOR_ID,
+						  P.AUTHOR_ID,
 							P.FEATURED,
 							P.CATEGORY,
 							P.CONTENT,
 							P.POSTED_ON,
 							P.EXCERPT,
 							P.POSTER_CARD,
-							P.ID AS POST_ID,
+							P.ID,
 							P.STATUS,
 							P.TAGS,
 							P.TITLE,
@@ -195,7 +195,7 @@ public class PostRepository {
 					postDTO.category(),
 					Objects.requireNonNull(postDTO.tags()),
 					LocalDateTime.now(),
-					postDTO.post_id(),
+					postDTO.id(),
 					postDTO.author_id()
 				))
 				.update(keyHolder);
@@ -218,16 +218,15 @@ public class PostRepository {
 						P.EXCERPT,
 						P.FEATURED,
 						P.POSTER_CARD,
-						(P.ID) AS POST_ID,
+						P.ID,
 						P.STATUS,
 						P.TAGS,
 						P.TITLE,
 						P.LAST_UPDATED,
 						P.AUTHOR_ID,
 						U.USERNAME
-						FROM POSTS P JOIN USERS U	ON P.AUTHOR_ID = U.ID
+						FROM POSTS P JOIN USERS U	ON P.AUTHOR_ID = U.ID AND P.ID = :ID
 						WHERE P.STATUS ILIKE '%PUBLISHED'
-						AND P.POST_ID = :ID
 						""")
 				.param("ID", id)
 				.query(PostDTO.class)

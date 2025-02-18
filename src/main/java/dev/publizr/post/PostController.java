@@ -56,7 +56,6 @@ public class PostController {
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
 			return ResponseEntity.ok(responseDTO);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
 			log.error("Fetching post list failed -- '{}'", e.getLocalizedMessage());
 			APIResponseDTO<List<PostDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -146,7 +145,7 @@ public class PostController {
 		try {
 			List<PostDTO> postDTO = postRepository.byAuthorId(id);
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
-			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Failed to fetch a post for the specified author -- '{}'", e.getLocalizedMessage());
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Post does not exist", null, 0);
