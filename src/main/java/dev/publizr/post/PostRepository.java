@@ -66,17 +66,16 @@ public class PostRepository {
 						P.TAGS,
 						P.TITLE,
 						P.LAST_UPDATED,
-						A.USERNAME
+						U.USERNAME
 					FROM
 						POSTS P
-						JOIN USERS A ON P.STATUS ILIKE '%PUBLISHED'
+						JOIN USERS U ON P.AUTHOR_ID = U.ID AND P.STATUS ILIKE '%PUBLISHED'
 					ORDER BY
-						P.POSTED_ON
+						P.POSTED_ON DESC
 					"""
 			).query(PostDTO.class).list();
-
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to retrieve posts");
+			throw new RuntimeException("Failed to retrieve posts", e);
 		}
 	}
 
@@ -97,11 +96,11 @@ public class PostRepository {
 					P.TAGS,
 					P.TITLE,
 					P.LAST_UPDATED,
-					A.USERNAME
-					FROM POSTS P JOIN USERS A
-					ON P.AUTHOR_ID = :ID
+					U.USERNAME
+					FROM POSTS P JOIN USERS U ON P.AUTHOR_ID = U.ID
 					AND P.STATUS ILIKE '%PUBLISHED'
-					ORDER BY P.POSTED_ON"""
+					WHERE U.ID = :ID
+					ORDER BY P.POSTED_ON DESC"""
 			).param("ID", id).query(PostDTO.class).list();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -114,7 +113,7 @@ public class PostRepository {
 				"""
 					(
 						SELECT
-					 	    P.AUTHOR_ID,
+					 	   P.AUTHOR_ID,
 							P.FEATURED,
 							P.CATEGORY,
 							P.CONTENT,
@@ -225,11 +224,10 @@ public class PostRepository {
 						P.TITLE,
 						P.LAST_UPDATED,
 						P.AUTHOR_ID,
-						A.USERNAME
-						FROM POSTS P JOIN USERS A
-						ON P.AUTHOR_ID = A.ID
+						U.USERNAME
+						FROM POSTS P JOIN USERS U	ON P.AUTHOR_ID = U.ID
 						WHERE P.STATUS ILIKE '%PUBLISHED'
-						AND P.ID = :ID
+						AND P.POST_ID = :ID
 						""")
 				.param("ID", id)
 				.query(PostDTO.class)
@@ -239,7 +237,7 @@ public class PostRepository {
 		}
 	}
 
-	public List<PostDTO> totalEntries() {
-		return jdbcClient.sql("SELECT * FROM POSTS").query(PostDTO.class).list();
+	public long totalEntries() {
+		return jdbcClient.sql("SELECT COUNT(*) FROM POSTS").query(Long.class).single();
 	}
 }

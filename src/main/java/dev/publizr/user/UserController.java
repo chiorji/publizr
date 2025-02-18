@@ -125,7 +125,7 @@ public class UserController {
 			if (!pattern.matcher(signUpDTO.email()).matches())
 				throw new RuntimeException(String.format("Email '%s' is invalid", signUpDTO.email()));
 
-			Integer emailCount = userRepository.findByEmail(signUpDTO.email());
+			long emailCount = userRepository.findByEmail(signUpDTO.email());
 
 			if (emailCount > 0) {
 				log.error("User with email address '{}' already exist", signUpDTO.email());

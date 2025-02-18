@@ -80,7 +80,8 @@ public class PostController {
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<PostDTO>> findById(@PathVariable @Parameter(name = "ID", description = "Post ID") Integer id) {
+	@Parameter(name = "ID", description = "Post ID", required = true, in = ParameterIn.PATH)
+	ResponseEntity<APIResponseDTO<PostDTO>> findById(@PathVariable Integer id) {
 		try {
 			PostDTO postDTO = postRepository.findById(id);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "publication retrieved", postDTO, 1);
@@ -144,7 +145,7 @@ public class PostController {
 	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable @Parameter(name = "id", description = "author's id") Integer id) {
 		try {
 			List<PostDTO> postDTO = postRepository.byAuthorId(id);
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "published successfully", postDTO, 1);
+			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 		} catch (RuntimeException e) {
 			log.error("Failed to fetch a post for the specified author -- '{}'", e.getLocalizedMessage());
@@ -173,7 +174,7 @@ public class PostController {
 		try {
 			List<PostDTO> postDTO = postRepository.recent();
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "published successfully", postDTO, postDTO.size());
-			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Fetching recent posts failed -- '{}'", e.getLocalizedMessage());
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Error retrieving posts", null, 0);
@@ -187,21 +188,22 @@ public class PostController {
 		description = "Delete a post associated to the ID provided as parameter",
 		responses = {
 			@ApiResponse(
-				responseCode = "200",
-				description = "Publication retrieved",
+				responseCode = "204",
+				description = "Publication deleted successfully",
 				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
-				description = "Failed to retrieve publication",
+				description = "Failed to delete publication",
 				content = @Content
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable @Parameter(name = "id", description = "Id of the post to be deleted") Integer id) {
+	@Parameter(name = "id", description = "Id of the post to be deleted", required = true, in = ParameterIn.PATH)
+	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable Integer id) {
 		try {
 			Integer deletedPostId = postRepository.deleteById(id);
 			if (deletedPostId < 0) throw new RuntimeException("Failed! Post was not deleted due to error.");
-			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(true, "Post deleted successfully", null, 0);
+			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
 			log.error("Deleting a post failed -- '{}'", e.getLocalizedMessage());
