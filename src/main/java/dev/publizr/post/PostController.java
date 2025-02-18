@@ -109,7 +109,7 @@ public class PostController {
 			)
 		}
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED, defaultValue = "token"))
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
 		try {
 			Integer postId = postRepository.save(post);
@@ -140,8 +140,9 @@ public class PostController {
 			)
 		}
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED))
-	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable @Parameter(name = "id", description = "author's id") Integer id) {
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
+	@Parameter(in = ParameterIn.PATH, name = "id", description = "author's id")
+	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable Integer id) {
 		try {
 			List<PostDTO> postDTO = postRepository.byAuthorId(id);
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
@@ -181,7 +182,7 @@ public class PostController {
 		}
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/delete/{id}")
 	@Operation(
 		summary = "Delete a post",
 		description = "Delete a post associated to the ID provided as parameter",
@@ -197,8 +198,9 @@ public class PostController {
 			)
 		}
 	)
-	@Parameter(name = "id", description = "Id of the post to be deleted", required = true, in = ParameterIn.PATH)
-	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable Integer id) {
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
+	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
+	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable @Valid Integer id) {
 		try {
 			Integer deletedPostId = postRepository.deleteById(id);
 			if (deletedPostId < 0) throw new RuntimeException("Failed! Post was not deleted due to error.");
@@ -212,7 +214,7 @@ public class PostController {
 	}
 
 
-	@PutMapping("/{id}")
+	@PutMapping("/update/{id}")
 	@Operation(
 		summary = "Update a post",
 		description = "Update a post associated to the ID provided as parameter",
@@ -228,7 +230,9 @@ public class PostController {
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid @Parameter(name = "id", description = "Id of the post to be updated") PostDTO postDTO) {
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
+	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
+	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid PostDTO postDTO) {
 		try {
 			PostDTO postDTO1 = postRepository.update(postDTO);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);

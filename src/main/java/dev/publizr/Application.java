@@ -22,6 +22,8 @@ public class Application {
 		registrationBean.setFilter(jwtFilter);
 		registrationBean.addUrlPatterns("/api/posts/publish");
 		registrationBean.addUrlPatterns("/api/users/list");
+		registrationBean.addUrlPatterns("/api/posts/update");
+		registrationBean.addUrlPatterns("/api/posts/delete");
 		return registrationBean;
 	}
 }
