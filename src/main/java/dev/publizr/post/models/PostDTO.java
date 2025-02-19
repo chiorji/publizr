@@ -7,8 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jdk.jfr.BooleanFlag;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Schema(description = "Post Data Transfer Object")
 public record PostDTO(
@@ -39,14 +40,16 @@ public record PostDTO(
 	String content,
 
 	@NotNull
-	@PastOrPresent
+	@PastOrPresent(message = "Post date cannot be in the future")
 	@Schema(description = "The first time post was published")
-	LocalDateTime posted_on,
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date posted_on,
 
 	@NotNull
-	@PastOrPresent
+	@PastOrPresent(message = "Last updated date cannot be in the future")
 	@Schema(description = "The last time the post was edited")
-	LocalDateTime last_updated,
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date last_updated,
 
 	@NotEmpty
 	@Schema(description = "Categorizes post", example = "Technology, Finance")
@@ -68,4 +71,5 @@ public record PostDTO(
 	@Schema(description = "Indicate whether a post is a featured top, featured post have larger display card")
 	Boolean featured
 ) {
+
 }

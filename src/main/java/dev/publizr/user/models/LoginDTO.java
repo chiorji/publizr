@@ -9,11 +9,11 @@ import jakarta.validation.constraints.Size;
 public record LoginDTO(
 	@NotEmpty
 	@Email
-	@Schema(description = "Users email address, must be valid", example = "johndoe@email.com")
+	@Schema(description = "Users email address, must be valid", example = "chigbo@orji.com")
 	String email,
 
 	@NotEmpty
 	@Size(min = 6, message = "Password should have a minimum of 6 characters")
-	@Schema(description = "Password provided while signing up")
+	@Schema(description = "Password provided while signing up", example = "12@Password")
 	String password
 ) {}

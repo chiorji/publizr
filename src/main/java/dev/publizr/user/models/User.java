@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public record User(
 	@Id
@@ -28,12 +29,14 @@ public record User(
 	@Nullable
 	String image_url,
 
-	@NotNull
+//	@NotNull
 	@PastOrPresent
-	LocalDateTime created_at,
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date created_at,
 
-	@NotNull
+//	@NotNull
 	@PastOrPresent
-	LocalDateTime updated_at
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date updated_at
 
 ) {}

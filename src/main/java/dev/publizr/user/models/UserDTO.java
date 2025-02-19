@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Schema(description = "User Data Transfer Object")
 public record UserDTO(
@@ -34,12 +34,12 @@ public record UserDTO(
 	@Schema(description = "This is the user's chosen profile picture")
 	String image_url,
 
-	@PastOrPresent
 	@Schema(description = "The date and time user signed up on the platform")
-	LocalDateTime created_at,
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date created_at,
 
-	@PastOrPresent
 	@Schema(description = "The recent date and time user updated his profile information on the platform")
-	LocalDateTime updated_at
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	Date updated_at
 ) {
 }

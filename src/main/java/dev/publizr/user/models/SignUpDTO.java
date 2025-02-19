@@ -10,12 +10,12 @@ import jakarta.validation.constraints.Size;
 public record SignUpDTO(
 	@NotEmpty
 	@Size(min = 4, message = "username should be a minimum of 4 characters")
-	@Schema(description = "This is the author's display name", example = "Bright Orji")
+	@Schema(description = "This is the author's display name", example = "Chigbo")
 	String username,
 
 	@NotEmpty
 	@Email(message = "Email should be a valid email format", regexp = "^(.+)@(.+)$", flags = Pattern.Flag.CASE_INSENSITIVE)
-	@Schema(description = "Users email address, must be valid", example = "bright@orji.com")
+	@Schema(description = "Users email address, must be valid", example = "chigbo@orji.com")
 	String email,
 
 	@NotEmpty
