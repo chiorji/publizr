@@ -28,25 +28,30 @@ public class PostRepository {
 
 	public Integer save(Post post) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		var created = jdbcClient.sql(
-				"""
-						INSERT INTO POSTS (TITLE, EXCERPT, CONTENT, AUTHOR_ID, CATEGORY, POSTER_CARD, FEATURED, TAGS, STATUS)
-						VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-					""")
-			.params(List.of(
-				post.title(),
-				post.excerpt(),
-				post.content(),
-				post.author_id(),
-				post.category(),
-				post.poster_card(),
-				post.featured(),
-				post.tags(),
-				post.status()
-			))
-			.update(keyHolder);
-		Assert.state(created == 1, "Failed to publish post " + post.title());
-		return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+		try {
+
+			var created = jdbcClient.sql(
+					"""
+							INSERT INTO POSTS (TITLE, EXCERPT, CONTENT, AUTHOR_ID, CATEGORY, POSTER_CARD, FEATURED, TAGS, STATUS)
+							VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+						""")
+				.params(List.of(
+					post.title(),
+					post.excerpt(),
+					post.content(),
+					post.author_id(),
+					post.category(),
+					post.poster_card(),
+					post.featured(),
+					post.tags(),
+					post.status()
+				))
+				.update(keyHolder);
+			Assert.state(created == 1, "Failed to publish post " + post.title());
+			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public List<PostDTO> list() {
@@ -91,14 +96,13 @@ public class PostRepository {
 					P.EXCERPT,
 					P.FEATURED,
 					P.POSTER_CARD,
-					(P.ID),
+					P.ID,
 					P.STATUS,
 					P.TAGS,
 					P.TITLE,
 					P.LAST_UPDATED,
 					U.USERNAME
 					FROM POSTS P JOIN USERS U ON P.AUTHOR_ID = U.ID
-					AND P.STATUS ILIKE '%PUBLISHED'
 					WHERE U.ID = :ID
 					ORDER BY P.POSTED_ON DESC"""
 			).param("ID", id).query(PostDTO.class).list();
@@ -185,7 +189,7 @@ public class PostRepository {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
 					"""
-						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?,
+						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?
 						WHERE ID = ? AND AUTHOR_ID = ?
 						""")
 				.params(List.of(
