@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.PrintStream;
 import java.util.List;
 
 @RestController
@@ -56,7 +55,7 @@ public class PostController {
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
 			return ResponseEntity.ok(responseDTO);
 		} catch (RuntimeException e) {
-			log.error("Fetching post list failed -- '{}'", e.getLocalizedMessage());
+			log.error("Fetching post list failed -- '{}'", e.getMessage());
 			APIResponseDTO<List<PostDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
@@ -86,7 +85,7 @@ public class PostController {
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "publication retrieved", postDTO, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			log.error("Fetching post failed -- '{}'", e.getLocalizedMessage());
+			log.error("Fetching post failed -- '{}'", e.getMessage());
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "Could not retrieve information for post with ID " + id, null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
 		}
@@ -117,7 +116,7 @@ public class PostController {
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 		} catch (RuntimeException e) {
-			log.error("Publishing a post failed -- '{}'", e.getLocalizedMessage());
+			log.error("Publishing a post failed -- '{}'", e.getMessage());
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "An error occurred while publishing post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
@@ -148,7 +147,7 @@ public class PostController {
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			log.error("Failed to fetch a post for the specified author -- '{}'", e.getLocalizedMessage());
+			log.error("Failed to fetch a post for the specified author -- '{}'", e.getMessage());
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Post does not exist", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
@@ -176,7 +175,7 @@ public class PostController {
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "published successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			log.error("Fetching recent posts failed -- '{}'", e.getLocalizedMessage());
+			log.error("Fetching recent posts failed -- '{}'", e.getMessage());
 			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Error retrieving posts", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
@@ -207,7 +206,7 @@ public class PostController {
 			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
-			log.error("Deleting a post failed -- '{}'", e.getLocalizedMessage());
+			log.error("Deleting a post failed -- '{}'", e.getMessage());
 			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(false, "Failed to delete post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
@@ -238,8 +237,7 @@ public class PostController {
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
-			e.printStackTrace((PrintStream) log);
-			log.error("Updating a post failed -- '{}'", e.getLocalizedMessage());
+			log.error("Updating a post failed -- '{}'", e.getMessage());
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "Error: could not update post, please try again", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
