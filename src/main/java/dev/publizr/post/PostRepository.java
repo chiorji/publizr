@@ -239,6 +239,36 @@ public class PostRepository {
 		}
 	}
 
+	public PostDTO findPostById(Integer id) {
+		try {
+			return jdbcClient.sql(
+				"""
+					SELECT
+						P.AUTHOR_ID,
+						P.CATEGORY,
+						P.CONTENT,
+						P.POSTED_ON,
+						P.EXCERPT,
+						P.FEATURED,
+						P.POSTER_CARD,
+						P.ID,
+						P.STATUS,
+						P.TAGS,
+						P.TITLE,
+						P.LAST_UPDATED,
+						U.USERNAME
+					FROM
+						POSTS P
+						JOIN USERS U ON P.AUTHOR_ID = U.ID
+					WHERE
+						P.ID = :ID
+					"""
+			).param("ID", id).query(PostDTO.class).single();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public long totalEntries() {
 		return jdbcClient.sql("SELECT COUNT(*) FROM POSTS").query(Long.class).single();
 	}

@@ -113,7 +113,7 @@ public class PostController {
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
 		try {
 			Integer postId = postRepository.save(post);
-			PostDTO newPost = postRepository.findById(postId);
+			PostDTO newPost = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 		} catch (RuntimeException e) {
