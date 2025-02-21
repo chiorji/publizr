@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: postgres:latest
+    image: postgres:alpine
     container_name: blogs
     restart: always
     environment:

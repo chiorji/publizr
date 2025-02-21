@@ -3,6 +3,8 @@ package dev.publizr.config;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.publizr.user.models.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,10 @@ import java.util.Date;
 @Service
 public class JWTService {
 	@Value("${secret.key}")
-	private String secretKey;
+	String secretKey;
 
 	@Value("${secret.token.issuer}")
-	private String tokenIssuer;
+	String tokenIssuer;
 
 
 	public String generateJWTToken(UserDTO user) {
@@ -37,6 +39,18 @@ public class JWTService {
 				.withExpiresAt(Date.from(instant))
 				.sign(algorithm);
 		} catch (JWTCreationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public DecodedJWT validateJWTToken(String jwtToken) {
+		try {
+			Algorithm algorithm = Algorithm.HMAC256(secretKey);
+			return JWT.require(algorithm)
+				.withIssuer(tokenIssuer)
+				.build()
+				.verify(jwtToken);
+		} catch (JWTVerificationException e) {
 			throw new RuntimeException(e);
 		}
 	}

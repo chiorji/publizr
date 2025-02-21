@@ -6,9 +6,12 @@ import dev.publizr.user.models.LoginDTO;
 import dev.publizr.user.models.SignUpDTO;
 import dev.publizr.user.models.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +55,10 @@ public class UserController {
 				description = "Failed to retrieve user list",
 				content = @Content
 			)
-		}
+		},
+		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-
+	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	ResponseEntity<APIResponseDTO<List<UserDTO>>> list() {
 		try {
 			List<UserDTO> userDTO = userRepository.list();
@@ -141,7 +145,7 @@ public class UserController {
 			dataMap.put("token", jwtToken);
 			dataMap.put("data", userDTO);
 
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Users retrieved", dataMap, 1);
+			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Signup successful", dataMap, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
 		} catch (RuntimeException e) {
