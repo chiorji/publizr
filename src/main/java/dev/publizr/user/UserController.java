@@ -1,6 +1,6 @@
 package dev.publizr.user;
 
-import dev.publizr.jwt.JWTService;
+import dev.publizr.config.JWTService;
 import dev.publizr.models.APIResponseDTO;
 import dev.publizr.user.models.LoginDTO;
 import dev.publizr.user.models.SignUpDTO;

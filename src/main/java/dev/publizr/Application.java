@@ -1,6 +1,6 @@
 package dev.publizr;
 
-import dev.publizr.jwt.JWTFilter;
+import dev.publizr.config.JWTFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,14 +16,11 @@ public class Application {
 	}
 
 	@Bean
-	public FilterRegistrationBean<JWTFilter> filterFilterRegistrationBean() {
+	public FilterRegistrationBean<JWTFilter> filterRegistrationBean() {
 		FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<>();
 		JWTFilter jwtFilter = new JWTFilter();
 		registrationBean.setFilter(jwtFilter);
-		registrationBean.addUrlPatterns("/api/posts/publish");
-		registrationBean.addUrlPatterns("/api/users/list");
-		registrationBean.addUrlPatterns("/api/posts/update");
-		registrationBean.addUrlPatterns("/api/posts/delete");
+		registrationBean.addUrlPatterns("/api/posts/publish", "/api/users/list", "/api/posts/update", "/api/posts/delete");
 		return registrationBean;
 	}
 }

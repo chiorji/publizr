@@ -1,1 +1,0 @@
-package dev.publizr.constants;public class Constants {	public final String SECRET_KEY = "APISECRETRANDOMKEY";	public final String TOKEN_ISSUER = "publizr";}

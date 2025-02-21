@@ -47,7 +47,6 @@ public class PostRepository {
 					post.status()
 				))
 				.update(keyHolder);
-			Assert.state(created == 1, "Failed to publish post " + post.title());
 			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (Exception e) {
 			throw new RuntimeException(e);

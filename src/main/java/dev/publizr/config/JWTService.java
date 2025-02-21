@@ -1,10 +1,10 @@
-package dev.publizr.jwt;
+package dev.publizr.config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import dev.publizr.constants.Constants;
 import dev.publizr.user.models.UserDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,19 +14,22 @@ import java.util.Date;
 
 @Service
 public class JWTService {
-	Constants constants = new Constants();
-	String TOKEN_ISSUER = constants.TOKEN_ISSUER;
-	String SECRET_KEY = constants.SECRET_KEY;
+	@Value("${secret.key}")
+	private String secretKey;
+
+	@Value("${secret.token.issuer}")
+	private String tokenIssuer;
+
 
 	public String generateJWTToken(UserDTO user) {
 		try {
-			Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+			Algorithm algorithm = Algorithm.HMAC256(secretKey);
 			long expireString = Long.parseLong(String.valueOf(3));
 			LocalDateTime expires = LocalDateTime.now().plusHours(expireString);
 			Instant instant = expires.atZone(ZoneId.systemDefault()).toInstant();
 
 			return JWT.create()
-				.withIssuer(TOKEN_ISSUER)
+				.withIssuer(tokenIssuer)
 				.withClaim("id", user.id())
 				.withClaim("role", user.role())
 				.withClaim("username", user.username())
