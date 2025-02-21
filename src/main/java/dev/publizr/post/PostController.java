@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
-@CacheEvict(value = "posts", allEntries = true)
 @Tag(name = "Post APIs", description = "Create, Read, Update, and Delete publications")
 public class PostController {
 	private static final Logger log = LogManager.getLogger(PostController.class);
@@ -107,12 +105,12 @@ public class PostController {
 				description = "Failed to publish",
 				content = @Content
 			)
-		}
+		},
+		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
 		try {
-			Integer postId = postRepository.save(post);
+			long postId = postRepository.save(post);
 			PostDTO newPost = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
@@ -138,9 +136,9 @@ public class PostController {
 				description = "Failed to retrieve publication",
 				content = @Content
 			)
-		}
+		},
+		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "author's id")
 	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable Integer id) {
 		try {
@@ -199,7 +197,6 @@ public class PostController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
 	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable @Valid Integer id) {
 		try {
@@ -229,13 +226,14 @@ public class PostController {
 				description = "Failed to retrieve publication",
 				content = @Content
 			)
-		}
+		},
+		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
 	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid PostDTO postDTO) {
 		try {
-			PostDTO postDTO1 = postRepository.update(postDTO);
+			long postId = postRepository.update(postDTO);
+			PostDTO postDTO1 = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {

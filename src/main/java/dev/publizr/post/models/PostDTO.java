@@ -1,7 +1,6 @@
 package dev.publizr.post.models;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -31,7 +30,7 @@ public record PostDTO(
 	@Schema(description = "This is the post's title")
 	String title,
 
-	@Nullable
+	@NotNull
 	@Schema(description = "A subtitle, or catchy paragraph from a post")
 	String excerpt,
 
@@ -51,11 +50,11 @@ public record PostDTO(
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	Date last_updated,
 
-	@NotEmpty
+	@NotNull
 	@Schema(description = "Categorizes post", example = "Technology, Finance")
 	String category,
 
-	@Nullable
+	@NotNull
 	@Schema(description = "Post tags", example = "hacking, coding, java")
 	String tags,
 
@@ -63,7 +62,7 @@ public record PostDTO(
 	@Schema(description = "Poster card for post")
 	String poster_card,
 
-	@NotEmpty
+	@NotNull
 	@Schema(description = "Post status", example = "Published or Draft")
 	String status,
 

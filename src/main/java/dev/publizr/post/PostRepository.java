@@ -183,7 +183,7 @@ public class PostRepository {
 		}
 	}
 
-	public PostDTO update(PostDTO postDTO) {
+	public long update(PostDTO postDTO) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
@@ -193,18 +193,16 @@ public class PostRepository {
 						""")
 				.params(List.of(
 					postDTO.title(),
-					Objects.requireNonNull(postDTO.excerpt()),
+					postDTO.excerpt(),
 					postDTO.content(),
 					postDTO.category(),
-					Objects.requireNonNull(postDTO.tags()),
+					postDTO.tags(),
 					LocalDateTime.now(),
 					postDTO.id(),
 					postDTO.author_id()
 				))
 				.update(keyHolder);
-			Assert.state(update == 1, "Failed to update post " + postDTO.title());
-			Integer postId = (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
-			return this.findById(postId);
+			return (long) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
@@ -239,7 +237,7 @@ public class PostRepository {
 		}
 	}
 
-	public PostDTO findPostById(Integer id) {
+	public PostDTO findPostById(Long id) {
 		try {
 			return jdbcClient.sql(
 				"""
