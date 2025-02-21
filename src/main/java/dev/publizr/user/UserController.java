@@ -6,8 +6,6 @@ import dev.publizr.user.models.LoginDTO;
 import dev.publizr.user.models.SignUpDTO;
 import dev.publizr.user.models.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -58,7 +56,6 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	@Parameter(in = ParameterIn.HEADER, name = "Authorization", schema = @Schema(type = "string", requiredMode = Schema.RequiredMode.REQUIRED), required = true)
 	ResponseEntity<APIResponseDTO<List<UserDTO>>> list() {
 		try {
 			List<UserDTO> userDTO = userRepository.list();
@@ -129,7 +126,7 @@ public class UserController {
 			if (!pattern.matcher(signUpDTO.email()).matches())
 				throw new RuntimeException(String.format("Email '%s' is invalid", signUpDTO.email()));
 
-			long emailCount = userRepository.findByEmail(signUpDTO.email());
+			Integer emailCount = userRepository.findByEmail(signUpDTO.email());
 
 			if (emailCount > 0) {
 				log.error("User with email address '{}' already exist", signUpDTO.email());

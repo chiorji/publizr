@@ -183,7 +183,7 @@ public class PostRepository {
 		}
 	}
 
-	public long update(PostDTO postDTO) {
+	public Integer update(PostDTO postDTO) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
@@ -202,7 +202,7 @@ public class PostRepository {
 					postDTO.author_id()
 				))
 				.update(keyHolder);
-			return (long) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
@@ -237,7 +237,7 @@ public class PostRepository {
 		}
 	}
 
-	public PostDTO findPostById(Long id) {
+	public PostDTO findPostById(Integer id) {
 		try {
 			return jdbcClient.sql(
 				"""
@@ -267,7 +267,7 @@ public class PostRepository {
 		}
 	}
 
-	public long totalEntries() {
-		return jdbcClient.sql("SELECT COUNT(*) FROM POSTS").query(Long.class).single();
+	public Integer totalEntries() {
+		return jdbcClient.sql("SELECT COUNT(*) FROM POSTS").query(Integer.class).single();
 	}
 }

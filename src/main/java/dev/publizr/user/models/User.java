@@ -29,12 +29,10 @@ public record User(
 	@Nullable
 	String image_url,
 
-//	@NotNull
 	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	Date created_at,
 
-//	@NotNull
 	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	Date updated_at

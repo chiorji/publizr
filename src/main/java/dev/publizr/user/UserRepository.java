@@ -69,9 +69,9 @@ public class UserRepository {
 		}
 	}
 
-	public long findByEmail(final String email) {
+	public Integer findByEmail(final String email) {
 		return jdbcClient.sql("SELECT COUNT(*) FROM USERS WHERE EMAIL = :EMAIL")
-			.param("EMAIL", email).query(Long.class).single();
+			.param("EMAIL", email).query(Integer.class).single();
 	}
 
 	public UserDTO findByUserId(Integer id) {
@@ -79,7 +79,7 @@ public class UserRepository {
 			.param("ID", id).query(UserDTO.class).single();
 	}
 
-	public long totalEntries() {
-		return jdbcClient.sql("SELECT COUNT(*) FROM USERS").query(Long.class).single();
+	public Integer totalEntries() {
+		return jdbcClient.sql("SELECT COUNT(*) FROM USERS").query(Integer.class).single();
 	}
 }

@@ -110,7 +110,7 @@ public class PostController {
 	)
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
 		try {
-			long postId = postRepository.save(post);
+			Integer postId = postRepository.save(post);
 			PostDTO newPost = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
@@ -232,7 +232,7 @@ public class PostController {
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
 	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid PostDTO postDTO) {
 		try {
-			long postId = postRepository.update(postDTO);
+			Integer postId = postRepository.update(postDTO);
 			PostDTO postDTO1 = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);

@@ -36,7 +36,7 @@ public class Bootstrap implements CommandLineRunner {
 	}
 
 	void loadUsers() {
-		long totalEntries = userRepository.totalEntries();
+		Integer totalEntries = userRepository.totalEntries();
 		log.info("Total entries: {}", totalEntries);
 		if (totalEntries == 0) {
 			log.warn("No user found in the database, adding default users....");
@@ -53,7 +53,7 @@ public class Bootstrap implements CommandLineRunner {
 	}
 
 	void loadPosts() {
-		long totalEntries = postRepository.totalEntries();
+		Integer totalEntries = postRepository.totalEntries();
 		if (totalEntries == 0) {
 			log.warn("No post found in the database, adding default posts....");
 			try (InputStream inputStream = TypeReference.class.getResourceAsStream("/data/posts.json")) {
