@@ -80,7 +80,7 @@ public class PostController {
 	@Parameter(name = "ID", description = "Post ID", required = true, in = ParameterIn.PATH)
 	ResponseEntity<APIResponseDTO<PostDTO>> findById(@PathVariable Integer id) {
 		try {
-			PostDTO postDTO = postRepository.findById(id);
+			PostDTO postDTO = postRepository.findPostById(id);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "publication retrieved", postDTO, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
@@ -169,9 +169,12 @@ public class PostController {
 		}
 	)
 	ResponseEntity<APIResponseDTO<List<PostDTO>>> recent() {
+		List<PostDTO> postDTO = null;
 		try {
-			List<PostDTO> postDTO = postRepository.recent();
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "published successfully", postDTO, postDTO.size());
+			Integer count = postRepository.totalEntries();
+			if (count < 6) postDTO = postRepository.list();
+			else postDTO = postRepository.recent();
+			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "Posts retrieved successfully", postDTO, count);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Fetching recent posts failed -- '{}'", e.getMessage());

@@ -188,8 +188,8 @@ public class PostRepository {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
 					"""
-						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?
-						WHERE ID = ? AND AUTHOR_ID = ?
+							UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?,
+						STATUS = ? WHERE ID = ? AND AUTHOR_ID = ?
 						""")
 				.params(List.of(
 					postDTO.title(),
@@ -198,6 +198,7 @@ public class PostRepository {
 					postDTO.category(),
 					postDTO.tags(),
 					LocalDateTime.now(),
+					postDTO.status(),
 					postDTO.id(),
 					postDTO.author_id()
 				))

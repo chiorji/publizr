@@ -63,7 +63,7 @@ public record PostDTO(
 	String poster_card,
 
 	@NotNull
-	@Schema(description = "Post status", example = "Published or Draft")
+	@Schema(description = "Post status, either published or draft", example = "Published")
 	String status,
 
 	@BooleanFlag
