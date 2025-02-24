@@ -20,8 +20,10 @@ public class FilterConfig {
 
 		JWTFilter jwtFilter = new JWTFilter(secretKey, tokenIssuer);
 		registrationBean.setFilter(jwtFilter);
-
-		registrationBean.addUrlPatterns("/api/posts/publish", "/api/users/list", "/api/posts/update", "/api/posts/delete");
+		registrationBean.addUrlPatterns("/api/posts/publish");
+		registrationBean.addUrlPatterns("/api/posts/update");
+		registrationBean.addUrlPatterns("/api/posts/delete");
+		registrationBean.addUrlPatterns("/api/users/list");
 		registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return registrationBean;
 	}
