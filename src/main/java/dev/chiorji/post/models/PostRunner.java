@@ -1,0 +1,1 @@
+package dev.chiorji.post.models;import java.util.List;public record PostRunner(List<Post> posts) {}
