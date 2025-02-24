@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -93,11 +94,11 @@ public class UserController {
 			String jwtToken = jwtService.generateJWTToken(validatedDTO);
 			dataMap.put("token", jwtToken);
 			dataMap.put("data", validatedDTO);
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Users retrieved", dataMap, 1);
+			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Login successful", dataMap, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("Login failed -- '{}'", e.getLocalizedMessage());
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "Invalid email and password combination", null, null);
+			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "There's a catch! - invalid email/password combination", null, null);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -123,16 +124,9 @@ public class UserController {
 
 		try {
 			Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-			if (!pattern.matcher(signUpDTO.email()).matches())
-				throw new RuntimeException(String.format("Email '%s' is invalid", signUpDTO.email()));
+			Assert.isTrue(pattern.matcher(signUpDTO.email()).matches(), String.format("Email '%s' is invalid", signUpDTO.email()));
 
-			Integer emailCount = userRepository.findByEmail(signUpDTO.email());
-
-			if (emailCount > 0) {
-				log.error("User with email address '{}' already exist", signUpDTO.email());
-				APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, String.format("User with email address '%s' already exist", signUpDTO.email()), null, 0);
-				return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-			}
+			var exist = userRepository.providedEmailExists(signUpDTO.email());
 
 			Integer createdUserId = userRepository.createUser(signUpDTO);
 			UserDTO userDTO = userRepository.findByUserId(createdUserId);
@@ -146,7 +140,7 @@ public class UserController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
 		} catch (RuntimeException e) {
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "Sign up failed, but don't fret - you can retry.", null, 0);
+			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}

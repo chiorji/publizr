@@ -48,12 +48,9 @@ public class UserRepository {
 
 	public UserDTO validate(LoginDTO payload) {
 		try {
-			var user = jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL")
-				.param("EMAIL", payload.email())
-				.query(User.class)
-				.single();
+			User user = findUserByEmail(payload.email());
 			if (!BCrypt.checkpw(payload.password(), user.password())) {
-				throw new RuntimeException("HEY! THERE'S A CATCH - EITHER AN INVALID EMAIL OR PASSWORD");
+				throw new RuntimeException("Hey, There's a catch! - An invalid email/password combination");
 			}
 			return new UserDTO(
 				user.id(),
@@ -65,13 +62,19 @@ public class UserRepository {
 				user.updated_at()
 			);
 		} catch (Exception e) {
-			throw new RuntimeException(e.getLocalizedMessage());
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 
-	public Integer findByEmail(final String email) {
-		return jdbcClient.sql("SELECT COUNT(*) FROM USERS WHERE EMAIL = :EMAIL")
+	private User findUserByEmail(String email) {
+		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL").param("EMAIL", email).query(User.class).single();
+	}
+
+	public Integer providedEmailExists(final String email) {
+		var count = jdbcClient.sql("SELECT COUNT(*) FROM USERS WHERE EMAIL = :EMAIL")
 			.param("EMAIL", email).query(Integer.class).single();
+		Assert.isTrue(count == 0, "Provided email already exist");
+		return count;
 	}
 
 	public UserDTO findByUserId(Integer id) {
