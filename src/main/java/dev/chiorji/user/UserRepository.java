@@ -1,19 +1,13 @@
 package dev.chiorji.user;
 
-import dev.chiorji.user.models.LoginDTO;
-import dev.chiorji.user.models.SignUpDTO;
-import dev.chiorji.user.models.User;
-import dev.chiorji.user.models.UserDTO;
-import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
-import java.util.List;
-import java.util.Objects;
+import dev.chiorji.user.models.*;
+import java.util.*;
+import org.mindrot.jbcrypt.*;
+import org.springframework.jdbc.core.simple.*;
+import org.springframework.jdbc.support.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.util.*;
 
 @Transactional
 @Repository
@@ -52,15 +46,7 @@ public class UserRepository {
 			if (!BCrypt.checkpw(payload.password(), user.password())) {
 				throw new RuntimeException("Hey, There's a catch! - An invalid email/password combination");
 			}
-			return new UserDTO(
-				user.id(),
-				user.username(),
-				user.email(),
-				user.role(),
-				user.image_url(),
-				user.created_at(),
-				user.updated_at()
-			);
+			return new UserDTO(user.id(), user.username(), user.email(), user.role(), user.image_url(), user.created_at(), user.updated_at());
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}

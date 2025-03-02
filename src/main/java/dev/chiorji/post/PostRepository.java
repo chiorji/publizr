@@ -1,17 +1,13 @@
 package dev.chiorji.post;
 
-import dev.chiorji.post.models.Post;
-import dev.chiorji.post.models.PostDTO;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import dev.chiorji.post.models.*;
+import java.time.*;
+import java.util.*;
+import org.springframework.jdbc.core.simple.*;
+import org.springframework.jdbc.support.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.util.*;
 
 @Transactional
 @Repository
@@ -36,17 +32,9 @@ public class PostRepository {
 							VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 						""")
 				.params(List.of(
-					post.title(),
-					post.excerpt(),
-					post.content(),
-					post.author_id(),
-					post.category(),
-					post.poster_card(),
-					post.featured(),
-					post.tags(),
-					post.status()
-				))
-				.update(keyHolder);
+					post.title(), post.excerpt(), post.content(), post.author_id(), post.category(),
+					post.poster_card(), post.featured(), post.tags(), post.status()
+				)).update(keyHolder);
 			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -57,25 +45,10 @@ public class PostRepository {
 		try {
 			return jdbcClient.sql(
 				"""
-					SELECT
-						P.AUTHOR_ID,
-						P.CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						P.FEATURED,
-						P.POSTER_CARD,
-						P.ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						U.USERNAME
-					FROM
-						POSTS P
-						JOIN USERS U ON P.AUTHOR_ID = U.ID AND P.STATUS ILIKE '%PUBLISHED'
-					ORDER BY
-						P.POSTED_ON DESC
+					SELECT	P.AUTHOR_ID, P.CATEGORY, P.CONTENT, P.POSTED_ON, P.EXCERPT, P.FEATURED, P.POSTER_CARD, P.ID,
+					P.STATUS, P.TAGS, P.TITLE, P.LAST_UPDATED, U.USERNAME FROM POSTS P
+					JOIN USERS U ON P.AUTHOR_ID = U.ID AND P.STATUS ILIKE '%PUBLISHED'
+					ORDER BY P.POSTED_ON DESC
 					"""
 			).query(PostDTO.class).list();
 		} catch (Exception e) {
@@ -87,23 +60,9 @@ public class PostRepository {
 		try {
 			return jdbcClient.sql(
 				"""
-					SELECT
-					P.AUTHOR_ID,
-					P.CATEGORY,
-					P.CONTENT,
-					P.POSTED_ON,
-					P.EXCERPT,
-					P.FEATURED,
-					P.POSTER_CARD,
-					P.ID,
-					P.STATUS,
-					P.TAGS,
-					P.TITLE,
-					P.LAST_UPDATED,
-					U.USERNAME
-					FROM POSTS P JOIN USERS U ON P.AUTHOR_ID = U.ID
-					WHERE U.ID = :ID
-					ORDER BY P.POSTED_ON DESC"""
+					SELECT	P.AUTHOR_ID, P.CATEGORY,	P.CONTENT,	P.POSTED_ON,	P.EXCERPT,	P.FEATURED, P.POSTER_CARD,
+					P.ID,	P.STATUS, P.TAGS, P.TITLE, P.LAST_UPDATED, U.USERNAME	FROM POSTS P JOIN USERS U ON P.AUTHOR_ID = U.ID
+					WHERE U.ID = :ID ORDER BY P.POSTED_ON DESC"""
 			).param("ID", id).query(PostDTO.class).list();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -115,56 +74,16 @@ public class PostRepository {
 			return jdbcClient.sql(
 				"""
 					(
-						SELECT
-					 	  P.AUTHOR_ID,
-							P.FEATURED,
-							P.CATEGORY,
-							P.CONTENT,
-							P.POSTED_ON,
-							P.EXCERPT,
-							P.POSTER_CARD,
-							P.ID,
-							P.STATUS,
-							P.TAGS,
-							P.TITLE,
-							P.LAST_UPDATED,
-							U.USERNAME
-						FROM
-							POSTS P
-							INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-						WHERE
-							P.STATUS ILIKE '%PUBLISHED'
-							AND P.FEATURED = TRUE
-						ORDER BY
-							P.POSTED_ON DESC
-						LIMIT	1
+						SELECT  P.AUTHOR_ID, P.FEATURED, P.CATEGORY,	P.CONTENT,	P.POSTED_ON,	P.EXCERPT,	P.POSTER_CARD,
+						P.ID, P.STATUS, P.TAGS, P.TITLE, P.LAST_UPDATED,	U.USERNAME FROM	POSTS P	INNER JOIN USERS U 
+						ON P.AUTHOR_ID = U.ID WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE ORDER BY	P.POSTED_ON DESC LIMIT	1
 					)
 					UNION ALL
 					(
-						SELECT
-						  P.AUTHOR_ID,
-							P.FEATURED,
-							P.CATEGORY,
-							P.CONTENT,
-							P.POSTED_ON,
-							P.EXCERPT,
-							P.POSTER_CARD,
-							P.ID,
-							P.STATUS,
-							P.TAGS,
-							P.TITLE,
-							P.LAST_UPDATED,
-							U.USERNAME
-						FROM
-							POSTS P
-							INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-						WHERE
-							P.STATUS ILIKE '%PUBLISHED'
-							AND P.FEATURED = FALSE
-						ORDER BY
-							P.POSTED_ON DESC
-						LIMIT	9
-					)""").query(PostDTO.class).list();
+						SELECT P.AUTHOR_ID,	P.FEATURED,	P.CATEGORY,	P.CONTENT,	P.POSTED_ON,	P.EXCERPT,	P.POSTER_CARD,
+						P.ID, P.STATUS, P.TAGS, P.TITLE, P.LAST_UPDATED, U.USERNAME	FROM	POSTS P
+						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE
+						ORDER BY P.POSTED_ON DESC LIMIT	9 )""").query(PostDTO.class).list();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -188,19 +107,11 @@ public class PostRepository {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var update = jdbcClient.sql(
 					"""
-							UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?,
+						UPDATE POSTS SET TITLE = ?, EXCERPT = ?, CONTENT = ?, CATEGORY = ?, TAGS = ?, LAST_UPDATED = ?,
 						STATUS = ? WHERE ID = ? AND AUTHOR_ID = ?
-						""")
-				.params(List.of(
-					postDTO.title(),
-					postDTO.excerpt(),
-					postDTO.content(),
-					postDTO.category(),
-					postDTO.tags(),
-					LocalDateTime.now(),
-					postDTO.status(),
-					postDTO.id(),
-					postDTO.author_id()
+						""").params(List.of(
+					postDTO.title(), postDTO.excerpt(), postDTO.content(), postDTO.category(),
+					postDTO.tags(), LocalDateTime.now(), postDTO.status(), postDTO.id(), postDTO.author_id()
 				))
 				.update(keyHolder);
 			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
@@ -213,26 +124,10 @@ public class PostRepository {
 		try {
 			return jdbcClient.sql(
 					"""
-						SELECT
-						P.CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						P.FEATURED,
-						P.POSTER_CARD,
-						P.ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						P.AUTHOR_ID,
-						U.USERNAME
-						FROM POSTS P JOIN USERS U	ON P.AUTHOR_ID = U.ID AND P.ID = :ID
-						WHERE P.STATUS ILIKE '%PUBLISHED'
-						""")
-				.param("ID", id)
-				.query(PostDTO.class)
-				.single();
+						SELECT P.CATEGORY, P.CONTENT, P.POSTED_ON, P.EXCERPT, P.FEATURED, P.POSTER_CARD, P.ID, P.STATUS,
+						P.TAGS, P.TITLE, P.LAST_UPDATED, P.AUTHOR_ID, U.USERNAME FROM POSTS P JOIN USERS U ON 
+						P.AUTHOR_ID = U.ID AND P.ID = :ID WHERE P.STATUS ILIKE '%PUBLISHED'
+						""").param("ID", id).query(PostDTO.class).single();
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
@@ -242,27 +137,10 @@ public class PostRepository {
 		try {
 			return jdbcClient.sql(
 				"""
-					SELECT
-						P.AUTHOR_ID,
-						P.CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						P.FEATURED,
-						P.POSTER_CARD,
-						P.ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						U.USERNAME
-					FROM
-						POSTS P
-						JOIN USERS U ON P.AUTHOR_ID = U.ID
-					WHERE
-						P.ID = :ID
-					"""
-			).param("ID", id).query(PostDTO.class).single();
+					SELECT	P.AUTHOR_ID,	P.CATEGORY,	P.CONTENT,	P.POSTED_ON,	P.EXCERPT,	P.FEATURED,	P.POSTER_CARD,
+					P.ID,	P.STATUS,	P.TAGS,	P.TITLE,	P.LAST_UPDATED,	U.USERNAME	FROM	POSTS P	JOIN USERS U ON P.AUTHOR_ID = U.ID
+					WHERE	P.ID = :ID
+					""").param("ID", id).query(PostDTO.class).single();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

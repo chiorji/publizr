@@ -1,33 +1,23 @@
 package dev.chiorji.user;
 
-import dev.chiorji.config.JWTService;
-import dev.chiorji.models.APIResponseDTO;
-import dev.chiorji.user.models.LoginDTO;
-import dev.chiorji.user.models.SignUpDTO;
-import dev.chiorji.user.models.UserDTO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
+import dev.chiorji.config.*;
+import dev.chiorji.models.*;
+import dev.chiorji.user.models.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.responses.*;
+import io.swagger.v3.oas.annotations.security.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.validation.*;
+import java.util.*;
+import java.util.regex.*;
+import org.apache.logging.log4j.*;
+import org.springframework.http.*;
+import org.springframework.util.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/users")
-@CacheEvict(value = "users", allEntries = true)
 @Tag(name = "User APIs", description = "Create, Read, Update, Delete")
 public class UserController {
 	private static final Logger log = LogManager.getLogger(UserController.class);
