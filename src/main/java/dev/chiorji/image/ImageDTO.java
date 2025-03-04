@@ -7,6 +7,9 @@ public record ImageDTO(
 	String name,
 
 	@NotEmpty
-	String url
+	String url,
+
+	@NotEmpty
+	String asset_id
 ) {
 }

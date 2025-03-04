@@ -8,6 +8,8 @@ public record Image(
 	@NotEmpty
 	String name,
 	@NotEmpty
-	String url
+	String url,
+	@NotEmpty
+	String asset_id
 ) {
 }

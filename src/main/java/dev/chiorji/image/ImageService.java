@@ -20,19 +20,21 @@ public class ImageService {
 		this.cloudinary = cloudinary;
 	}
 
-	public Image saveImage(ImageUploadDTO imageUploadDTO) throws IOException {
+	public Image uploadImage(ImageUploadDTO imageUploadDTO) throws IOException {
 		Map<String, Object> result = uploadToCloudinary(imageUploadDTO.url());
-		ImageDTO imageDTO = new ImageDTO(imageUploadDTO.name(), (String) result.get("secure_url"));
+		ImageDTO imageDTO = new ImageDTO(imageUploadDTO.name(), (String) result.get("secure_url"), (String) result.get("asset_id"));
 		return imageRepository.saveImage(imageDTO);
 	}
 
 	private Map<String, Object> uploadToCloudinary(MultipartFile multipartFile) throws IOException {
 		File file = convert(multipartFile);
+		log.info("Converted file to stream, uploading to cloudinary...");
 		Map<String, Object> result = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "blog_covers"));
 		if (!Files.deleteIfExists(file.toPath())) {
 			log.error("Failed to delete temp file");
 			throw new IOException("Failed to delete temp file " + file.getAbsolutePath());
 		}
+		log.info("File successfully uploaded to cloudinary");
 		log.info("{}", result);
 		return result;
 	}
@@ -46,13 +48,13 @@ public class ImageService {
 		return file;
 	}
 
-	public Image getImage(Integer id) {
-
-		return imageRepository.getImage(id);
+	public void deleteImageById(Integer id) throws IOException {
+		Image image = findImageById(id);
+		cloudinary.uploader().destroy(image.asset_id(), ObjectUtils.emptyMap());
+		imageRepository.deleteImageById(id);
 	}
 
-	public void deleteImageById(Integer id) throws IOException {
-		cloudinary.uploader().destroy(String.valueOf(id), ObjectUtils.emptyMap());
-		imageRepository.deleteImage(id);
+	public Image findImageById(Integer id) {
+		return imageRepository.findImageById(id);
 	}
 }

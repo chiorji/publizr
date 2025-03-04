@@ -108,8 +108,7 @@ public class PostController {
 	)
 	ResponseEntity<APIResponseDTO<PostDTO>> create(@ModelAttribute @Valid PostPublishDTO publishDTO) {
 		try {
-			System.out.println("Tags: " + publishDTO.getTags());
-			Image image = imageService.saveImage(new ImageUploadDTO(publishDTO.getTitle(), publishDTO.getPoster_card()));
+			Image image = imageService.uploadImage(new ImageUploadDTO(publishDTO.getTitle(), publishDTO.getPoster_card()));
 			Post post = new Post(
 				publishDTO.getTitle(), publishDTO.getContent(), publishDTO.getExcerpt(), image.id(), publishDTO.getTags(), publishDTO.getStatus(), publishDTO.getAuthor_id(),
 				publishDTO.getCategory(), publishDTO.getFeatured()
@@ -205,13 +204,14 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
-	ResponseEntity<APIResponseDTO<Void>> deleteById(@PathVariable @Valid Integer id) {
+	ResponseEntity<APIResponseDTO<Void>> deletePostById(@PathVariable @Valid Integer id) {
 		try {
-			Integer deletedPostId = postRepository.deleteById(id);
-			if (deletedPostId < 0) throw new RuntimeException("Failed! Post was not deleted due to error.");
+			DeletePostDTO deletedPost = postRepository.deletePostById(id);
+			if (deletedPost == null) throw new RuntimeException("Failed! Post was not deleted due to error.");
+			imageService.deleteImageById(deletedPost.imageId());
 			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			log.error("Deleting a post failed -- '{}'", e.getMessage());
 			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(false, "Failed to delete post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);

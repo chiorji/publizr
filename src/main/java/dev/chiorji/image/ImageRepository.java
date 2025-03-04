@@ -17,17 +17,18 @@ public class ImageRepository {
 
 	public Image saveImage(ImageDTO image) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcClient.sql("INSERT INTO IMAGES(NAME, URL) VALUES(? , ?) RETURNING *")
-			.params(List.of(image.name(), image.url()))
+		jdbcClient.sql("INSERT INTO IMAGES(NAME, URL, ASSET_ID) VALUES(?, ?, ?) RETURNING *")
+			.params(List.of(image.name(), image.url(), image.asset_id()))
 			.update(keyHolder);
-		return new Image((Integer) keyHolder.getKeys().get("ID"), (String) keyHolder.getKeys().get("NAME"), (String) keyHolder.getKeys().get("URL"));
+		return new Image((Integer) keyHolder.getKeys().get("ID"), (String) keyHolder.getKeys().get("NAME"), (String) keyHolder.getKeys().get("URL"), (String) keyHolder.getKeys().get(
+			"asset_id"));
 	}
 
-	public Image getImage(Integer id) {
+	public Image findImageById(Integer id) {
 		return jdbcClient.sql("SELECT * FROM IMAGES WHERE ID = :ID").param("ID", id).query(Image.class).single();
 	}
 
-	public void deleteImage(Integer id) {
+	public void deleteImageById(Integer id) {
 		jdbcClient.sql("DELETE FROM IMAGES WHERE ID = :ID").param("ID", id).update();
 	}
 }

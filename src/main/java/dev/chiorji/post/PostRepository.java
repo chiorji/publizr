@@ -115,14 +115,16 @@ public class PostRepository {
 		}
 	}
 
-	public Integer deleteById(Integer id) {
+	public DeletePostDTO deletePostById(Integer id) {
 		try {
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE ID = :ID")
 				.param("ID", id)
 				.update(keyHolder);
 			Assert.state(deletedId == 1, "Failed to delete post");
-			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+			int postId = (int) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+			int imageId = (int) Objects.requireNonNull(keyHolder.getKeys().get("POSTER_CARD"));
+			return new DeletePostDTO(postId, imageId);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
