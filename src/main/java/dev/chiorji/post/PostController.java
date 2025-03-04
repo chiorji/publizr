@@ -106,7 +106,7 @@ public class PostController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<APIResponseDTO<PostDTO>> create(@ModelAttribute @Valid PostPublishDTO publishDTO) {
+	ResponseEntity<APIResponseDTO<PostDTO>> publish(@ModelAttribute @Valid PostPublishDTO publishDTO) {
 		try {
 			Image image = imageService.uploadImage(new ImageUploadDTO(publishDTO.getTitle(), publishDTO.getPoster_card()));
 			Post post = new Post(

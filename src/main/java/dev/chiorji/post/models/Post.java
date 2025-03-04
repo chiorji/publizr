@@ -26,7 +26,7 @@ public record Post(
 	Integer author_id,
 
 	@NotEmpty
-	String category,
+	Integer category,
 
 	@BooleanFlag
 	Boolean featured

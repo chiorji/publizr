@@ -58,7 +58,7 @@ public class PostRepository {
 				"""
 					SELECT
 					P.AUTHOR_ID,
-					P.CATEGORY,
+					C.NAME AS CATEGORY,
 					P.CONTENT,
 					P.POSTED_ON,
 					P.EXCERPT,
@@ -73,6 +73,7 @@ public class PostRepository {
 					U.USERNAME FROM POSTS P
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+					INNER JOIN CATEGORIES C P.CATEGORY = C.ID
 					WHERE P.STATUS ILIKE '%PUBLISHED'
 					ORDER BY P.POSTED_ON DESC
 					"""
@@ -89,7 +90,7 @@ public class PostRepository {
 				"""
 					SELECT
 					P.AUTHOR_ID,
-					P.CATEGORY,
+					C.NAME AS CATEGORY,
 					P.CONTENT,
 					P.POSTED_ON,
 					P.EXCERPT,
@@ -105,6 +106,7 @@ public class PostRepository {
 					FROM POSTS P
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+					INNER JOIN CATEGORIES C P.CATEGORY = C.ID
 					WHERE U.ID = :ID
 					ORDER BY P.POSTED_ON DESC"""
 			).param("ID", id).query(PostDTO.class).list();
@@ -156,7 +158,7 @@ public class PostRepository {
 						SELECT
 						P.AUTHOR_ID,
 						P.FEATURED,
-						P.CATEGORY,
+						C.NAME AS CATEGORY,
 						P.CONTENT,
 						P.POSTED_ON,
 						P.EXCERPT,
@@ -170,6 +172,7 @@ public class PostRepository {
 						U.USERNAME FROM	POSTS P
 						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 						INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+						INNER JOIN CATEGORIES C P.CATEGORY = C.ID
 						WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE
 						ORDER BY	P.POSTED_ON DESC LIMIT	1
 					)
@@ -178,7 +181,7 @@ public class PostRepository {
 						SELECT
 						P.AUTHOR_ID,
 						P.FEATURED,
-						P.CATEGORY,
+						C.NAME AS CATEGORY,
 						P.CONTENT,
 						P.POSTED_ON,
 						P.EXCERPT,
@@ -192,6 +195,7 @@ public class PostRepository {
 						U.USERNAME	FROM	POSTS P
 						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 						INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+						INNER JOIN CATEGORIES C P.CATEGORY = C.ID
 						WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE
 						ORDER BY P.POSTED_ON DESC LIMIT	9 )""").query(PostDTO.class).list();
 		} catch (Exception e) {
@@ -210,7 +214,7 @@ public class PostRepository {
 				"""
 					SELECT
 					P.AUTHOR_ID,
-					P.CATEGORY,
+					C.NAME AS CATEGORY,
 					P.CONTENT,
 					P.POSTED_ON,
 					P.EXCERPT,
@@ -226,6 +230,7 @@ public class PostRepository {
 					FROM	POSTS P
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+					INNER JOIN CATEGORIES C P.CATEGORY = C.ID
 					WHERE	P.ID = :ID
 					""").param("ID", id).query(PostDTO.class).single();
 		} catch (Exception e) {

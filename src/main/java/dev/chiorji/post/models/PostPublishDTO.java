@@ -3,31 +3,22 @@ package dev.chiorji.post.models;
 import org.springframework.web.multipart.*;
 
 public class PostPublishDTO {
-	//	@NotEmpty
 	private String title;
 
-	//	@NotEmpty
 	private String content;
 
-	//	@NotNull
 	private String excerpt;
 
-	//	@NotNull
 	private MultipartFile poster_card;
 
-	//	@NotNull
 	private String tags;
 
-	//	@NotEmpty
 	private String status;
 
-	//	@NotNull
 	private Integer author_id;
 
-	//	@NotEmpty
-	private String category;
+	private Integer category;
 
-	//	@BooleanFlag
 	private Boolean featured;
 
 	public Boolean getFeatured() {
@@ -38,11 +29,11 @@ public class PostPublishDTO {
 		this.featured = featured;
 	}
 
-	public String getCategory() {
+	public Integer getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
+	public void setCategory(Integer category) {
 		this.category = category;
 	}
 
