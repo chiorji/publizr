@@ -1,8 +1,7 @@
 package dev.chiorji.post.models;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jdk.jfr.BooleanFlag;
+import jakarta.validation.constraints.*;
+import jdk.jfr.*;
 
 public record Post(
 	@NotEmpty
@@ -15,7 +14,7 @@ public record Post(
 	String excerpt,
 
 	@NotNull
-	String poster_card,
+	Integer poster_card,
 
 	@NotNull
 	String tags,

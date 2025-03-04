@@ -1,14 +1,11 @@
 package dev.chiorji.post.models;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import jdk.jfr.BooleanFlag;
-import org.springframework.data.annotation.Id;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
+import io.swagger.v3.oas.annotations.media.*;
+import jakarta.validation.constraints.*;
+import java.util.*;
+import jdk.jfr.*;
+import org.springframework.data.annotation.*;
+import org.springframework.format.annotation.*;
 
 @Schema(description = "Post Data Transfer Object")
 public record PostDTO(
@@ -60,7 +57,7 @@ public record PostDTO(
 
 	@NotNull
 	@Schema(description = "Poster card for post")
-	String poster_card,
+	String url,
 
 	@NotNull
 	@Schema(description = "Post status, either published or draft", example = "Published")

@@ -1,19 +1,16 @@
 package dev.chiorji.bootstrap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.chiorji.post.PostRepository;
-import dev.chiorji.post.models.PostRunner;
-import dev.chiorji.user.UserRepository;
-import dev.chiorji.user.models.UserRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.InputStream;
+import com.fasterxml.jackson.core.type.*;
+import com.fasterxml.jackson.databind.*;
+import dev.chiorji.post.*;
+import dev.chiorji.post.models.*;
+import dev.chiorji.user.*;
+import dev.chiorji.user.models.*;
+import java.io.*;
+import org.slf4j.*;
+import org.springframework.boot.*;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
 
 @Profile("dev")
 @Component
@@ -32,12 +29,11 @@ public class Bootstrap implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		loadUsers();
-		loadPosts();
+//		loadPosts();
 	}
 
 	void loadUsers() {
 		Integer totalEntries = userRepository.totalEntries();
-		log.info("Total entries: {}", totalEntries);
 		if (totalEntries == 0) {
 			log.warn("No user found in the database, adding default users....");
 			try (InputStream inputStream = TypeReference.class.getResourceAsStream("/data/users.json")) {

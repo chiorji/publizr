@@ -49,3 +49,15 @@ http://localhost:8080/swagger-ui/index.html
 # OpenAPI Documentation
  http://localhost:8080/publizr/api-docs
 ```
+
+### GENERAL ORDER OF SQL CLAUSES
+
+```shell
+1. SELECT
+2. FROM
+3. JOIN
+4. WHERE
+5. GROUP BY
+6. HAVING
+7. ORDER BY
+```

@@ -1,5 +1,6 @@
 package dev.chiorji.post;
 
+import dev.chiorji.image.*;
 import dev.chiorji.models.*;
 import dev.chiorji.post.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -15,15 +16,18 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@ControllerAdvice
 @RequestMapping("/api/posts")
 @Tag(name = "Post APIs", description = "Create, Read, Update, and Delete publications")
 public class PostController {
 	private static final Logger log = LogManager.getLogger(PostController.class);
 
 	private final PostRepository postRepository;
+	private final ImageService imageService;
 
-	public PostController(PostRepository postRepository) {
+	public PostController(PostRepository postRepository, ImageService imageService) {
 		this.postRepository = postRepository;
+		this.imageService = imageService;
 	}
 
 	@GetMapping("")
@@ -85,7 +89,7 @@ public class PostController {
 	}
 
 
-	@PostMapping("/publish")
+	@PostMapping(value = "/publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(
 		summary = "Publish a post",
 		description = "Publishes a post",
@@ -102,13 +106,19 @@ public class PostController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<APIResponseDTO<PostDTO>> create(@RequestBody @Valid Post post) {
+	ResponseEntity<APIResponseDTO<PostDTO>> create(@ModelAttribute @Valid PostPublishDTO publishDTO) {
 		try {
+			System.out.println("Tags: " + publishDTO.getTags());
+			Image image = imageService.saveImage(new ImageUploadDTO(publishDTO.getTitle(), publishDTO.getPoster_card()));
+			Post post = new Post(
+				publishDTO.getTitle(), publishDTO.getContent(), publishDTO.getExcerpt(), image.id(), publishDTO.getTags(), publishDTO.getStatus(), publishDTO.getAuthor_id(),
+				publishDTO.getCategory(), publishDTO.getFeatured()
+			);
 			Integer postId = postRepository.save(post);
 			PostDTO newPost = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			log.error("Publishing a post failed -- '{}'", e.getMessage());
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "An error occurred while publishing post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
