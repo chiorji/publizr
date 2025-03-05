@@ -67,6 +67,7 @@ public record PostDTO(
 	@Schema(description = "Indicate whether a post is a featured top, featured post have larger display card")
 	Boolean featured,
 
+	@NotNull
 	Integer read_time
 ) {
 }

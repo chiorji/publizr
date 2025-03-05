@@ -237,9 +237,9 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
-	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid PostDTO postDTO) {
+	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid UpdatePostDTO updatePostDTO) {
 		try {
-			Integer postId = postRepository.update(postDTO);
+			Integer postId = postRepository.update(updatePostDTO);
 			PostDTO postDTO1 = postRepository.findPostById(postId);
 			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
