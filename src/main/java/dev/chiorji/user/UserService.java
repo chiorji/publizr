@@ -88,4 +88,21 @@ public class UserService {
 	public List<UserDTO> getAllUsers() {
 		return userRepository.getAllUsers();
 	}
+
+	public Boolean processPasswordReset(LoginDTO loginDTO) {
+		try {
+			Boolean isValidEmail = isValidEmailAddress(loginDTO.email());
+			if (!isValidEmail) throw new RuntimeException("Invalid email provided");
+
+			User user = findUserByEmail(loginDTO.email());
+			if (user == null) throw new RuntimeException("User does not exist");
+
+			String passwordHash = getPasswordHashString(loginDTO.password());
+			LoginDTO update = new LoginDTO(loginDTO.email(), passwordHash);
+			userRepository.updatePassword(update);
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

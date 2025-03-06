@@ -110,4 +110,9 @@ public class UserController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	@PutMapping("/reset-password")
+	public Boolean processResetPassword(@RequestBody @Valid LoginDTO loginDTO) {
+		return userService.processPasswordReset(loginDTO);
+	}
 }

@@ -16,10 +16,6 @@ public class UserRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	public void saveAll(List<SignUpDTO> signUpDTO) {
-		signUpDTO.forEach(this::createUser);
-	}
-
 	public KeyHolder createUser(SignUpDTO user) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcClient.sql("INSERT INTO USERS (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)")
@@ -48,5 +44,11 @@ public class UserRepository {
 
 	public Integer totalEntries() {
 		return jdbcClient.sql("SELECT COUNT(*) FROM USERS").query(Integer.class).single();
+	}
+
+	public void updatePassword(LoginDTO loginDTO) {
+		jdbcClient.sql("UPDATE USERS SET PASSWORD = ? WHERE EMAIL = ?")
+			.params(List.of(loginDTO.password(), loginDTO.email()))
+			.update();
 	}
 }
