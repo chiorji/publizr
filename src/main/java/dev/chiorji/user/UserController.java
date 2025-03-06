@@ -1,6 +1,5 @@
 package dev.chiorji.user;
 
-import dev.chiorji.config.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -10,10 +9,8 @@ import io.swagger.v3.oas.annotations.security.*;
 import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.validation.*;
 import java.util.*;
-import java.util.regex.*;
 import org.apache.logging.log4j.*;
 import org.springframework.http.*;
-import org.springframework.util.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,16 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User APIs", description = "Create, Read, Update, Delete")
 public class UserController {
 	private static final Logger log = LogManager.getLogger(UserController.class);
-	private final UserRepository userRepository;
-	private final JWTService jwtService;
+	private final UserService userService;
 
-	public UserController(UserRepository userRepository, JWTService jwtService) {
-		this.userRepository = userRepository;
-		this.jwtService = jwtService;
+	public UserController(UserService userService) {
+		this.userService = userService;
 	}
 
 
-	@GetMapping("/list")
+	@GetMapping("")
 	@Operation(
 		summary = "Get the list of users",
 		description = "This endpoint returns the list of all users signed up on the platform",
@@ -47,9 +42,9 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<ResponseDTO<List<UserDTO>>> list() {
+	ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers() {
 		try {
-			List<UserDTO> userDTO = userRepository.list();
+			List<UserDTO> userDTO = userService.getAllUsers();
 			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
@@ -76,18 +71,14 @@ public class UserController {
 			)
 		}
 	)
-	ResponseEntity<ResponseDTO<Map<String, Object>>> findById(@Valid @RequestBody LoginDTO loginDTO) {
-		Map<String, Object> dataMap = new HashMap<>();
+	ResponseEntity<ResponseDTO<LoginUpResponseDTO>> processLoginRequest(@Valid @RequestBody LoginDTO loginDTO) {
 		try {
-			UserDTO validatedDTO = userRepository.validate(loginDTO);
-			String jwtToken = jwtService.generateJWTToken(validatedDTO);
-			dataMap.put("token", jwtToken);
-			dataMap.put("data", validatedDTO);
-			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(true, "Login successful", dataMap, 1);
+			LoginUpResponseDTO data = userService.processLoginRequest(loginDTO);
+			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Login successful", data, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("Login failed -- '{}'", e.getLocalizedMessage());
-			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(false, "There's a catch! - invalid email/password combination", null, null);
+			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, e.getMessage(), null, null);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -109,27 +100,13 @@ public class UserController {
 			)
 		}
 	)
-	ResponseEntity<ResponseDTO<Map<String, Object>>> signUp(@Valid @RequestBody SignUpDTO signUpDTO) {
-
+	ResponseEntity<ResponseDTO<LoginUpResponseDTO>> processSignUpRequest(@Valid @RequestBody SignUpDTO signUpDTO) {
 		try {
-			Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-			Assert.isTrue(pattern.matcher(signUpDTO.email()).matches(), String.format("Email '%s' is invalid", signUpDTO.email()));
-
-			var exist = userRepository.providedEmailExists(signUpDTO.email());
-
-			Integer createdUserId = userRepository.createUser(signUpDTO);
-			UserDTO userDTO = userRepository.findByUserId(createdUserId);
-			String jwtToken = jwtService.generateJWTToken(userDTO);
-
-			Map<String, Object> dataMap = new HashMap<>();
-			dataMap.put("token", jwtToken);
-			dataMap.put("data", userDTO);
-
-			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(true, "Signup successful", dataMap, 1);
+			LoginUpResponseDTO data = userService.processSignUpRequest(signUpDTO);
+			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Sign up successful", data, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-
 		} catch (RuntimeException e) {
-			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
+			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}

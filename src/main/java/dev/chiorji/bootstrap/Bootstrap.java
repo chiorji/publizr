@@ -19,11 +19,13 @@ public class Bootstrap implements CommandLineRunner {
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
 	private final ObjectMapper objectMapper;
+	private final UserService userService;
 
-	public Bootstrap(UserRepository userRepository, PostRepository postRepository, ObjectMapper objectMapper) {
+	public Bootstrap(UserRepository userRepository, PostRepository postRepository, ObjectMapper objectMapper, UserService userService) {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
 		this.objectMapper = objectMapper;
+		this.userService = userService;
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class Bootstrap implements CommandLineRunner {
 			log.warn("No user found in the database, adding default users....");
 			try (InputStream inputStream = TypeReference.class.getResourceAsStream("/data/users.json")) {
 				UserRunner users = objectMapper.readValue(inputStream, UserRunner.class);
-				userRepository.saveAll(users.users());
+				userService.saveAll(users.users());
 			} catch (RuntimeException | IOException e) {
 				log.error("Error loading default users.");
 				throw new RuntimeException(e);
