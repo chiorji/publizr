@@ -1,6 +1,5 @@
 package dev.chiorji.post;
 
-import dev.chiorji.image.*;
 import dev.chiorji.models.*;
 import dev.chiorji.post.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -23,11 +22,11 @@ public class PostController {
 	private static final Logger log = LogManager.getLogger(PostController.class);
 
 	private final PostRepository postRepository;
-	private final ImageService imageService;
+	private final PostService postService;
 
-	public PostController(PostRepository postRepository, ImageService imageService) {
+	public PostController(PostRepository postRepository, PostService postService) {
 		this.postRepository = postRepository;
-		this.imageService = imageService;
+		this.postService = postService;
 	}
 
 	@GetMapping("")
@@ -37,8 +36,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publications retrieved",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publications retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve publications",
@@ -46,14 +44,13 @@ public class PostController {
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<List<PostDTO>>> list() {
+	ResponseEntity<ResponseDTO<List<PostDTO>>> list() {
 		try {
-			List<PostDTO> postDTO = postRepository.list();
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
+			List<PostDTO> postDTO = postService.list();
+			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
 			return ResponseEntity.ok(responseDTO);
 		} catch (RuntimeException e) {
-			log.error("Fetching post list failed -- '{}'", e.getMessage());
-			APIResponseDTO<List<PostDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
+			ResponseDTO<List<PostDTO>> errorResponse = new ResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -66,8 +63,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication retrieved",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve publication",
@@ -76,14 +72,14 @@ public class PostController {
 		}
 	)
 	@Parameter(name = "ID", description = "Post ID", required = true, in = ParameterIn.PATH)
-	ResponseEntity<APIResponseDTO<PostDTO>> findById(@PathVariable Integer id) {
+	ResponseEntity<ResponseDTO<PostDTO>> findById(@PathVariable Integer id) {
 		try {
 			PostDTO postDTO = postRepository.findPostById(id);
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "publication retrieved", postDTO, 1);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(true, "publication retrieved", postDTO, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Fetching post failed -- '{}'", e.getMessage());
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "Could not retrieve information for post with ID " + id, null, 0);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(false, "Could not retrieve information for post with ID " + id, null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
 		}
 	}
@@ -96,8 +92,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication successful",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication successful", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to publish",
@@ -106,20 +101,13 @@ public class PostController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<APIResponseDTO<PostDTO>> publish(@ModelAttribute @Valid PostPublishDTO publishDTO) {
+	ResponseEntity<ResponseDTO<PostDTO>> publishPost(@ModelAttribute @Valid PublishDTO publishDTO) {
 		try {
-			Image image = imageService.uploadImage(new ImageUploadDTO(publishDTO.getTitle(), publishDTO.getPoster_card()));
-			Post post = new Post(
-				publishDTO.getTitle(), publishDTO.getContent(), publishDTO.getExcerpt(), image.id(), publishDTO.getTags(), publishDTO.getStatus(), publishDTO.getAuthor_id(),
-				publishDTO.getCategory(), publishDTO.getFeatured()
-			);
-			Integer postId = postRepository.save(post);
-			PostDTO newPost = postRepository.findPostById(postId);
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "published successfully", newPost, 1);
+			PostDTO postDTO = postService.publishPost(publishDTO);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(true, "published successfully", postDTO, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 		} catch (Exception e) {
-			log.error("Publishing a post failed -- '{}'", e.getMessage());
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "An error occurred while publishing post", null, 0);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(false, "An error occurred while publishing post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -132,8 +120,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication retrieved",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve publication",
@@ -143,14 +130,13 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "author's id")
-	ResponseEntity<APIResponseDTO<List<PostDTO>>> byAuthorId(@PathVariable Integer id) {
+	ResponseEntity<ResponseDTO<List<PostDTO>>> getPostByAuthorId(@PathVariable Integer id) {
 		try {
-			List<PostDTO> postDTO = postRepository.byAuthorId(id);
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
+			List<PostDTO> postDTO = postService.getPostByAuthorId(id);
+			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			log.error("Failed to fetch a post for the specified author -- '{}'", e.getMessage());
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Post does not exist", null, 0);
+			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(false, "Post does not exist", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -162,8 +148,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication retrieved",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve publication",
@@ -171,17 +156,13 @@ public class PostController {
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<List<PostDTO>>> recent() {
-		List<PostDTO> postDTO = null;
+	ResponseEntity<ResponseDTO<List<PostDTO>>> getTenMostRecentPosts() {
 		try {
-			Integer count = postRepository.totalEntries();
-			if (count < 6) postDTO = postRepository.list();
-			else postDTO = postRepository.recent();
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(true, "Posts retrieved successfully", postDTO, count);
+			List<PostDTO> postDTO = postService.getTenMostRecentPosts();
+			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(true, "Posts retrieved successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			log.error("Fetching recent posts failed -- '{}'", e.getMessage());
-			APIResponseDTO<List<PostDTO>> responseDTO = new APIResponseDTO<>(false, "Error retrieving posts", null, 0);
+			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(false, "Error retrieving posts", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -193,8 +174,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "204",
-				description = "Publication deleted successfully",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication deleted successfully", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to delete publication",
@@ -204,16 +184,13 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
-	ResponseEntity<APIResponseDTO<Void>> deletePostById(@PathVariable @Valid Integer id) {
+	ResponseEntity<ResponseDTO<Void>> deletePostById(@PathVariable @Valid Integer id) {
 		try {
-			DeletePostDTO deletedPost = postRepository.deletePostById(id);
-			if (deletedPost == null) throw new RuntimeException("Failed! Post was not deleted due to error.");
-			imageService.deleteImageById(deletedPost.imageId());
-			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(true, "Publication deleted successfully", null, 0);
+			postService.deletePostById(id);
+			ResponseDTO<Void> responseDTO = new ResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			log.error("Deleting a post failed -- '{}'", e.getMessage());
-			APIResponseDTO<Void> responseDTO = new APIResponseDTO<>(false, "Failed to delete post", null, 0);
+		} catch (RuntimeException e) {
+			ResponseDTO<Void> responseDTO = new ResponseDTO<>(false, "Failed to delete post", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -226,8 +203,7 @@ public class PostController {
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
-				description = "Publication retrieved",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				description = "Publication retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve publication",
@@ -237,15 +213,13 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
-	ResponseEntity<APIResponseDTO<PostDTO>> update(@RequestBody @Valid UpdatePostDTO updatePostDTO) {
+	ResponseEntity<ResponseDTO<PostDTO>> updatePost(@RequestBody @Valid PostUpdateDTO postUpdateDTO) {
 		try {
-			Integer postId = postRepository.update(updatePostDTO);
-			PostDTO postDTO1 = postRepository.findPostById(postId);
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(true, "Post updated successfully", postDTO1, 1);
+			PostDTO postDTO = postService.updatePost(postUpdateDTO);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(true, "Post updated successfully", postDTO, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
-			log.error("Updating a post failed -- '{}'", e.getMessage());
-			APIResponseDTO<PostDTO> responseDTO = new APIResponseDTO<>(false, "Error: could not update post, please try again", null, 0);
+			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(false, "Error: could not update post, please try again", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}

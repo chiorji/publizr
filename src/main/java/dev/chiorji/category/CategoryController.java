@@ -17,14 +17,14 @@ public class CategoryController {
 	}
 
 	@GetMapping("")
-	ResponseEntity<APIResponseDTO<List<Category>>> getAllCategories() {
+	ResponseEntity<ResponseDTO<List<Category>>> getAllCategories() {
 		try {
 			List<Category> categories = categoryService.getAllCategories();
-			APIResponseDTO<List<Category>> responseDTO = new APIResponseDTO<>(true, "Categories retrieved", categories, categories.size());
+			ResponseDTO<List<Category>> responseDTO = new ResponseDTO<>(true, "Categories retrieved", categories, categories.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("Failed to fetch a post for the specified author -- '{}'", e.getMessage());
-			APIResponseDTO<List<Category>> responseDTO = new APIResponseDTO<>(false, "Failed to retrieve categories", null, 0);
+			ResponseDTO<List<Category>> responseDTO = new ResponseDTO<>(false, "Failed to retrieve categories", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}

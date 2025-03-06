@@ -3,7 +3,7 @@ package dev.chiorji.post.models;
 import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.*;
 
-public record UpdatePostDTO(
+public record PostUpdateDTO(
 	@Id
 	Integer id,
 

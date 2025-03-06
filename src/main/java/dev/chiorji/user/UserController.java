@@ -38,7 +38,7 @@ public class UserController {
 			@ApiResponse(
 				responseCode = "200",
 				description = "Users retrieved successfully",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Failed to retrieve user list",
@@ -47,14 +47,14 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<APIResponseDTO<List<UserDTO>>> list() {
+	ResponseEntity<ResponseDTO<List<UserDTO>>> list() {
 		try {
 			List<UserDTO> userDTO = userRepository.list();
-			APIResponseDTO<List<UserDTO>> responseDTO = new APIResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
+			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Fetching user list failed -- '{}'", e.getLocalizedMessage());
-			APIResponseDTO<List<UserDTO>> errorResponse = new APIResponseDTO<>(false, "Error occurred while retrieving users", null, 0);
+			ResponseDTO<List<UserDTO>> errorResponse = new ResponseDTO<>(false, "Error occurred while retrieving users", null, 0);
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -68,7 +68,7 @@ public class UserController {
 			@ApiResponse(
 				responseCode = "200",
 				description = "Login successful",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Login failed",
@@ -76,19 +76,18 @@ public class UserController {
 			)
 		}
 	)
-
-	ResponseEntity<APIResponseDTO<Map<String, Object>>> findById(@Valid @RequestBody LoginDTO loginDTO) {
+	ResponseEntity<ResponseDTO<Map<String, Object>>> findById(@Valid @RequestBody LoginDTO loginDTO) {
 		Map<String, Object> dataMap = new HashMap<>();
 		try {
 			UserDTO validatedDTO = userRepository.validate(loginDTO);
 			String jwtToken = jwtService.generateJWTToken(validatedDTO);
 			dataMap.put("token", jwtToken);
 			dataMap.put("data", validatedDTO);
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Login successful", dataMap, 1);
+			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(true, "Login successful", dataMap, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("Login failed -- '{}'", e.getLocalizedMessage());
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "There's a catch! - invalid email/password combination", null, null);
+			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(false, "There's a catch! - invalid email/password combination", null, null);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -102,7 +101,7 @@ public class UserController {
 			@ApiResponse(
 				responseCode = "200",
 				description = "Sign up successful",
-				content = @Content(schema = @Schema(implementation = APIResponseDTO.class))),
+				content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
 			@ApiResponse(
 				responseCode = "400",
 				description = "Sign up failed",
@@ -110,7 +109,7 @@ public class UserController {
 			)
 		}
 	)
-	ResponseEntity<APIResponseDTO<Map<String, Object>>> signUp(@Valid @RequestBody SignUpDTO signUpDTO) {
+	ResponseEntity<ResponseDTO<Map<String, Object>>> signUp(@Valid @RequestBody SignUpDTO signUpDTO) {
 
 		try {
 			Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
@@ -126,11 +125,11 @@ public class UserController {
 			dataMap.put("token", jwtToken);
 			dataMap.put("data", userDTO);
 
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(true, "Signup successful", dataMap, 1);
+			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(true, "Signup successful", dataMap, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
 		} catch (RuntimeException e) {
-			APIResponseDTO<Map<String, Object>> responseDTO = new APIResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
+			ResponseDTO<Map<String, Object>> responseDTO = new ResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}

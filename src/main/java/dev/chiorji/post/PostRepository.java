@@ -53,48 +53,97 @@ public class PostRepository {
 	}
 
 	public List<PostDTO> list() {
-		try {
-			return jdbcClient.sql(
+		return jdbcClient.sql(
+			"""
+				SELECT
+				P.AUTHOR_ID,
+				C.NAME AS CATEGORY,
+				P.CONTENT,
+				P.POSTED_ON,
+				P.EXCERPT,
+				P.FEATURED,
+				I.URL,
+				P.ID,
+				P.STATUS,
+				P.TAGS,
+				P.TITLE,
+				P.READ_TIME,
+				P.LAST_UPDATED,
+				U.USERNAME FROM POSTS P
+				INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+				INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+				INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
+				WHERE P.STATUS ILIKE '%PUBLISHED'
+				ORDER BY P.POSTED_ON DESC
 				"""
-					SELECT
-					P.AUTHOR_ID,
-					C.NAME AS CATEGORY,
-					P.CONTENT,
-					P.POSTED_ON,
-					P.EXCERPT,
-					P.FEATURED,
-					I.URL,
-					P.ID,
-					P.STATUS,
-					P.TAGS,
-					P.TITLE,
-					P.READ_TIME,
-					P.LAST_UPDATED,
-					U.USERNAME FROM POSTS P
-					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
-					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-					WHERE P.STATUS ILIKE '%PUBLISHED'
-					ORDER BY P.POSTED_ON DESC
-					"""
-			).query(PostDTO.class).list();
-		} catch (Exception e) {
-			log.error("Error occurred while listing: {}", e.getMessage());
-			throw new RuntimeException("Failed to retrieve posts", e);
-		}
+		).query(PostDTO.class).list();
 	}
 
 	List<PostDTO> byAuthorId(Integer id) {
+		return jdbcClient.sql(
+			"""
+				SELECT
+				P.AUTHOR_ID,
+				C.NAME AS CATEGORY,
+				P.CONTENT,
+				P.POSTED_ON,
+				P.EXCERPT,
+				P.FEATURED,
+				I.URL,
+				P.ID,
+				P.STATUS,
+				P.TAGS,
+				P.TITLE,
+				P.LAST_UPDATED,
+				P.READ_TIME,
+				U.USERNAME
+				FROM POSTS P
+				INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+				INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+				INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
+				WHERE U.ID = :ID
+				ORDER BY P.POSTED_ON DESC"""
+		).param("ID", id).query(PostDTO.class).list();
+	}
+
+	public KeyHolder deletePostById(Integer id) {
 		try {
-			return jdbcClient.sql(
-				"""
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE ID = :ID RETURNING *")
+				.param("ID", id)
+				.update(keyHolder);
+			Assert.state(deletedId == 1, "Failed to delete post");
+			return keyHolder;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public KeyHolder updatePost(PostUpdateDTO postUpdateDTO) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcClient.sql(
+			"""
+				UPDATE POSTS SET TITLE = ?,	EXCERPT = ?, CONTENT = ?,	CATEGORY = ?,	TAGS = ?, LAST_UPDATED = ?, STATUS = ?
+				 WHERE ID = ? AND AUTHOR_ID = ?
+				""").params(List.of(
+			postUpdateDTO.title(), postUpdateDTO.excerpt(), postUpdateDTO.content(), postUpdateDTO.category(),
+			postUpdateDTO.tags(), LocalDateTime.now(), postUpdateDTO.status(),
+			postUpdateDTO.id(), postUpdateDTO.author_id()
+		)).update(keyHolder);
+		return keyHolder;
+	}
+
+	public List<PostDTO> getTenMostRecentPosts() {
+		return jdbcClient.sql(
+			"""
+				(
 					SELECT
 					P.AUTHOR_ID,
+					P.FEATURED,
 					C.NAME AS CATEGORY,
 					P.CONTENT,
 					P.POSTED_ON,
 					P.EXCERPT,
-					P.FEATURED,
 					I.URL,
 					P.ID,
 					P.STATUS,
@@ -102,107 +151,35 @@ public class PostRepository {
 					P.TITLE,
 					P.LAST_UPDATED,
 					P.READ_TIME,
-					U.USERNAME
-					FROM POSTS P
+					U.USERNAME FROM	POSTS P
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
 					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-					WHERE U.ID = :ID
-					ORDER BY P.POSTED_ON DESC"""
-			).param("ID", id).query(PostDTO.class).list();
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error("Error occurred while byAuthorId: {}", e.getMessage());
-			throw new RuntimeException(e);
-		}
-	}
-
-	public DeletePostDTO deletePostById(Integer id) {
-		try {
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			var deletedId = jdbcClient.sql("DELETE FROM POSTS WHERE ID = :ID")
-				.param("ID", id)
-				.update(keyHolder);
-			Assert.state(deletedId == 1, "Failed to delete post");
-			int postId = (int) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
-			int imageId = (int) Objects.requireNonNull(keyHolder.getKeys().get("POSTER_CARD"));
-			return new DeletePostDTO(postId, imageId);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public Integer update(UpdatePostDTO updatePostDTO) {
-		try {
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			jdbcClient.sql(
-					"""
-						UPDATE POSTS SET TITLE = ?,	EXCERPT = ?, CONTENT = ?,	CATEGORY = ?,	TAGS = ?, LAST_UPDATED = ?, STATUS = ?
-						 WHERE ID = ? AND AUTHOR_ID = ?
-						""").params(List.of(
-					updatePostDTO.title(), updatePostDTO.excerpt(), updatePostDTO.content(), updatePostDTO.category(),
-					updatePostDTO.tags(), LocalDateTime.now(), updatePostDTO.status(),
-					updatePostDTO.id(), updatePostDTO.author_id()
-				))
-				.update(keyHolder);
-			return (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
-		} catch (RuntimeException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public List<PostDTO> recent() {
-		try {
-			return jdbcClient.sql(
-				"""
-					(
-						SELECT
-						P.AUTHOR_ID,
-						P.FEATURED,
-						C.NAME AS CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						I.URL,
-						P.ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						P.READ_TIME,
-						U.USERNAME FROM	POSTS P
-						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-						INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
-						INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-						WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE
-						ORDER BY	P.POSTED_ON DESC LIMIT	1
-					)
-					UNION ALL
-					(
-						SELECT
-						P.AUTHOR_ID,
-						P.FEATURED,
-						C.NAME AS CATEGORY,
-						P.CONTENT,
-						P.POSTED_ON,
-						P.EXCERPT,
-						I.URL,
-						P.ID,
-						P.STATUS,
-						P.TAGS,
-						P.TITLE,
-						P.LAST_UPDATED,
-						P.READ_TIME,
-						U.USERNAME	FROM	POSTS P
-						INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-						INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
-						INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-						WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE
-						ORDER BY P.POSTED_ON DESC LIMIT	9 )""").query(PostDTO.class).list();
-		} catch (Exception e) {
-			log.error("Error occurred while recent: {}", e.getMessage());
-			throw new RuntimeException(e);
-		}
+					WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE
+					ORDER BY	P.POSTED_ON DESC LIMIT	1
+				)
+				UNION ALL
+				(
+					SELECT
+					P.AUTHOR_ID,
+					P.FEATURED,
+					C.NAME AS CATEGORY,
+					P.CONTENT,
+					P.POSTED_ON,
+					P.EXCERPT,
+					I.URL,
+					P.ID,
+					P.STATUS,
+					P.TAGS,
+					P.TITLE,
+					P.LAST_UPDATED,
+					P.READ_TIME,
+					U.USERNAME	FROM	POSTS P
+					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
+					WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE
+					ORDER BY P.POSTED_ON DESC LIMIT	9 )""").query(PostDTO.class).list();
 	}
 
 	public Integer totalEntries() {
@@ -210,33 +187,28 @@ public class PostRepository {
 	}
 
 	public PostDTO findPostById(Integer id) {
-		try {
-			return jdbcClient.sql(
-				"""
-					SELECT
-					P.AUTHOR_ID,
-					C.NAME AS CATEGORY,
-					P.CONTENT,
-					P.POSTED_ON,
-					P.EXCERPT,
-					P.FEATURED,
-					I.URL,
-					P.ID,
-					P.STATUS,
-					P.TAGS,
-					P.TITLE,
-					P.READ_TIME,
-					P.LAST_UPDATED,
-					U.USERNAME
-					FROM	POSTS P
-					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
-					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
-					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-					WHERE	P.ID = :ID
-					""").param("ID", id).query(PostDTO.class).single();
-		} catch (Exception e) {
-			log.error("Error occurred while findPostById: {}", e.getMessage());
-			throw new RuntimeException(e);
-		}
+		return jdbcClient.sql(
+			"""
+				SELECT
+				P.AUTHOR_ID,
+				C.NAME AS CATEGORY,
+				P.CONTENT,
+				P.POSTED_ON,
+				P.EXCERPT,
+				P.FEATURED,
+				I.URL,
+				P.ID,
+				P.STATUS,
+				P.TAGS,
+				P.TITLE,
+				P.READ_TIME,
+				P.LAST_UPDATED,
+				U.USERNAME
+				FROM	POSTS P
+				INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
+				INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
+				INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
+				WHERE	P.ID = :ID
+				""").param("ID", id).query(PostDTO.class).single();
 	}
 }

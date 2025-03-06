@@ -1,6 +1,6 @@
 package dev.chiorji.post.models;
 
-public record DeletePostDTO(
+public record PostDeleteDTO(
 	Integer postId,
 	Integer imageId
 ) {

@@ -34,8 +34,7 @@ public class ImageService {
 			log.error("Failed to delete temp file");
 			throw new IOException("Failed to delete temp file " + file.getAbsolutePath());
 		}
-		log.info("File successfully uploaded to cloudinary");
-		log.info("{}", result);
+		log.info("File successfully uploaded to cloudinary -- {} --", result);
 		return result;
 	}
 
@@ -52,6 +51,7 @@ public class ImageService {
 		Image image = findImageById(id);
 		cloudinary.uploader().destroy(image.asset_id(), ObjectUtils.emptyMap());
 		imageRepository.deleteImageById(id);
+		log.info("image deleted");
 	}
 
 	public Image findImageById(Integer id) {

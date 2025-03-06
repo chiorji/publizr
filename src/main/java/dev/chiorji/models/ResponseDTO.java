@@ -1,13 +1,12 @@
 package dev.chiorji.models;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jdk.jfr.BooleanFlag;
+import io.swagger.v3.oas.annotations.media.*;
+import jakarta.annotation.*;
+import jakarta.validation.constraints.*;
+import jdk.jfr.*;
 
 @Schema(description = "Standard API Response Data Transfer Object")
-public record APIResponseDTO<T>(
+public record ResponseDTO<T>(
 	@NotNull
 	@BooleanFlag
 	@Schema(description = "Indicates if a request is successful", example = "true")
