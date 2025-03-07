@@ -1,13 +1,11 @@
 package dev.chiorji.user.models;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import org.springframework.data.annotation.Id;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
+import jakarta.annotation.*;
+import jakarta.validation.constraints.*;
+import java.util.*;
+import jdk.jfr.*;
+import org.springframework.data.annotation.*;
+import org.springframework.format.annotation.*;
 
 public record User(
 	@Id
@@ -35,6 +33,8 @@ public record User(
 
 	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	Date updated_at
+	Date updated_at,
 
+	@BooleanFlag
+	Boolean is_deleted
 ) {}

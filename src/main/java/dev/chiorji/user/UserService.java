@@ -1,6 +1,8 @@
 package dev.chiorji.user;
 
 import dev.chiorji.config.*;
+import dev.chiorji.post.*;
+import dev.chiorji.post.models.*;
 import dev.chiorji.user.models.*;
 import java.util.*;
 import java.util.regex.*;
@@ -12,10 +14,12 @@ import org.springframework.stereotype.*;
 public class UserService {
 	private final UserRepository userRepository;
 	private final JWTService jwtService;
+	private final PostService postService;
 
-	public UserService(UserRepository userRepository, JWTService jwtService) {
+	public UserService(UserRepository userRepository, JWTService jwtService, PostService postService) {
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
+		this.postService = postService;
 	}
 
 	public void saveAll(List<SignUpDTO> signUpDTO) {
@@ -71,7 +75,7 @@ public class UserService {
 			if (!isValidLoginCredentials(payload.password(), user.password())) {
 				throw new RuntimeException("There's a catch! An invalid email and password combination");
 			}
-			return new UserDTO(user.id(), user.username(), user.email(), user.role(), user.image_url(), user.created_at(), user.updated_at());
+			return new UserDTO(user.id(), user.username(), user.email(), user.role(), user.image_url(), user.created_at(), user.updated_at(), user.is_deleted());
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
@@ -104,5 +108,17 @@ public class UserService {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Boolean softDeleteUserById(Integer id) {
+		UserDTO userDTO = findUserById(id);
+		if (userDTO == null) throw new RuntimeException("404 - user not found");
+		List<PostDTO> postDTOS = postService.getPostByAuthorId(userDTO.id());
+		for (PostDTO postDTO : postDTOS) {
+			PostDeleteDTO postDeleteDTO = new PostDeleteDTO(postDTO.id(), id);
+			postService.softDeletePostByIdAndAuthorId(postDeleteDTO);
+		}
+		userRepository.softDeleteUserById(id);
+		return true;
 	}
 }

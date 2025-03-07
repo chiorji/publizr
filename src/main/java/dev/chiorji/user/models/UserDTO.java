@@ -1,13 +1,12 @@
 package dev.chiorji.user.models;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
+import io.swagger.v3.oas.annotations.media.*;
+import jakarta.annotation.*;
+import jakarta.validation.constraints.*;
+import java.util.*;
+import jdk.jfr.*;
+import org.springframework.data.annotation.*;
+import org.springframework.format.annotation.*;
 
 @Schema(description = "User Data Transfer Object")
 public record UserDTO(
@@ -40,6 +39,9 @@ public record UserDTO(
 
 	@Schema(description = "The recent date and time user updated his profile information on the platform")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	Date updated_at
+	Date updated_at,
+
+	@BooleanFlag
+	Boolean is_deleted
 ) {
 }

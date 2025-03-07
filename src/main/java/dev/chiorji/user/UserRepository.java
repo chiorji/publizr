@@ -51,4 +51,10 @@ public class UserRepository {
 			.params(List.of(loginDTO.password(), loginDTO.email()))
 			.update();
 	}
+
+	public void softDeleteUserById(Integer id) {
+		jdbcClient.sql("UPDATE USERS SET IS_DELETED = TRUE WHERE ID = ? AND ROLE != 'ADMIN'")
+			.params(List.of(id))
+			.update();
+	}
 }

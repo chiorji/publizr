@@ -112,7 +112,14 @@ public class UserController {
 	}
 
 	@PutMapping("/reset-password")
-	public Boolean processResetPassword(@RequestBody @Valid LoginDTO loginDTO) {
-		return userService.processPasswordReset(loginDTO);
+	public ResponseEntity<Boolean> processResetPassword(@RequestBody @Valid LoginDTO loginDTO) {
+		Boolean resetComplete = userService.processPasswordReset(loginDTO);
+		return new ResponseEntity<>(resetComplete, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<Boolean> processUserSoftDelete(@PathVariable @Valid Integer id) {
+		Boolean softDeleted = userService.softDeleteUserById(id);
+		return new ResponseEntity<>(softDeleted, HttpStatus.OK);
 	}
 }
