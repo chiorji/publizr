@@ -89,4 +89,25 @@ public class PostService {
 		Integer postId = (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
 		return postRepository.findPostById(postId);
 	}
+
+	public void softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO) {
+		try {
+			Integer postLikes = likeService.getPostLikesCount(postDeleteDTO.id());
+			if (postLikes > 0) {
+				PostDTO postDTO = postRepository.findPostById(postDeleteDTO.id());
+				LikeDTO likeDTO = new LikeDTO(postDTO.id(), postDTO.author_id());
+				likeService.unlikePost(likeDTO);
+			}
+
+			KeyHolder keyHolder = postRepository.softDeletePostByIdAndAuthorId(postDeleteDTO);
+			if (keyHolder.getKeyList().isEmpty()) throw new RuntimeException("Failed! Post was not deleted due to error.");
+		} catch (Exception e) {
+			log.error("Soft Delete Failed -- '{}' -- ", e.getMessage());
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Boolean updatePostFeatureStatus(Integer id) {
+		return postRepository.updatePostFeatureStatus(id);
+	}
 }

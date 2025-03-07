@@ -167,7 +167,7 @@ public class PostController {
 		}
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/delete")
 	@Operation(
 		summary = "Delete a post",
 		description = "Delete a post associated to the ID provided as parameter",
@@ -184,9 +184,9 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
-	ResponseEntity<ResponseDTO<Void>> deletePostById(@PathVariable @Valid Integer id) {
+	ResponseEntity<ResponseDTO<Void>> softDeletePostById(@ModelAttribute @Valid PostDeleteDTO postDeleteDTO) {
 		try {
-			postService.deletePostById(id);
+			postService.softDeletePostByIdAndAuthorId(postDeleteDTO);
 			ResponseDTO<Void> responseDTO = new ResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
 		} catch (RuntimeException e) {
@@ -195,6 +195,11 @@ public class PostController {
 		}
 	}
 
+	@PutMapping("/update/feature/{id}")
+	public ResponseEntity<Boolean> updatePostFeatureStatus(@PathVariable @Valid Integer id) {
+		Boolean deleted = postService.updatePostFeatureStatus(id);
+		return new ResponseEntity<>(deleted, HttpStatus.OK);
+	}
 
 	@PutMapping("/update/{id}")
 	@Operation(

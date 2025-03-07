@@ -73,7 +73,7 @@ public class PostRepository {
 				INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 				INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
 				INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-				WHERE P.STATUS ILIKE '%PUBLISHED'
+				WHERE P.STATUS ILIKE '%PUBLISHED' AND P.IS_DELETED = FALSE
 				ORDER BY P.POSTED_ON DESC
 				"""
 		).query(PostDTO.class).list();
@@ -89,6 +89,7 @@ public class PostRepository {
 				P.POSTED_ON,
 				P.EXCERPT,
 				P.FEATURED,
+				P.IS_DELETED,
 				I.URL,
 				P.ID,
 				P.STATUS,
@@ -155,7 +156,7 @@ public class PostRepository {
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
 					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-					WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE
+					WHERE	P.STATUS ILIKE '%PUBLISHED'	AND P.FEATURED = TRUE AND P.IS_DELETED = FALSE
 					ORDER BY	P.POSTED_ON DESC LIMIT	1
 				)
 				UNION ALL
@@ -178,7 +179,7 @@ public class PostRepository {
 					INNER JOIN USERS U ON P.AUTHOR_ID = U.ID
 					INNER JOIN IMAGES I ON P.POSTER_CARD = I.ID
 					INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
-					WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE
+					WHERE P.STATUS ILIKE '%PUBLISHED' AND P.FEATURED = FALSE AND P.IS_DELETED = FALSE
 					ORDER BY P.POSTED_ON DESC LIMIT	9 )""").query(PostDTO.class).list();
 	}
 
@@ -210,5 +211,21 @@ public class PostRepository {
 				INNER JOIN CATEGORIES C ON P.CATEGORY = C.ID
 				WHERE	P.ID = :ID
 				""").param("ID", id).query(PostDTO.class).single();
+	}
+
+	public KeyHolder softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcClient.sql("UPDATE POSTS SET IS_DELETED = TRUE WHERE ID = ? AND AUTHOR_ID = ?")
+			.params(List.of(postDeleteDTO.id(), postDeleteDTO.author_id()))
+			.update(keyHolder);
+		return keyHolder;
+	}
+
+	public Boolean updatePostFeatureStatus(Integer id) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcClient.sql("UPDATE POSTS SET FEATURED = TRUE WHERE ID = :ID RETURNING *")
+			.param("ID", id).update(keyHolder);
+		Integer postId = (Integer) Objects.requireNonNull(keyHolder.getKeys()).get("ID");
+		return postId >= 1;
 	}
 }
