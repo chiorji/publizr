@@ -24,12 +24,23 @@ public class UserRepository {
 		return keyHolder;
 	}
 
-	public List<UserDTO> getAllUsers() {
-		return jdbcClient.sql("SELECT * FROM USERS").query(UserDTO.class).list();
+	public List<UserDTO> getAllActiveUsers() {
+		return jdbcClient.sql(
+			"""
+				SELECT * FROM USERS
+				WHERE ROLE = 'AUTHOR'
+				AND IS_DELETED = FALSE
+				ORDER BY CREATED_AT DESC
+				"""
+		).query(UserDTO.class).list();
+	}
+
+	public List<UserDTO> getActiveAndInActiveUsers() {
+		return jdbcClient.sql("SELECT * FROM USERS ORDER BY CREATED_AT DESC").query(UserDTO.class).list();
 	}
 
 	public User findUserByEmail(String email) {
-		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = :EMAIL").param("EMAIL", email).query(User.class).single();
+		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ?").params(List.of(email)).query(User.class).single();
 	}
 
 	public Integer providedEmailExists(final String email) {

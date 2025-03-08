@@ -1,5 +1,6 @@
 package dev.chiorji.user;
 
+import com.auth0.jwt.interfaces.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -42,79 +43,21 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers() {
+	ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers(@RequestAttribute("claims") Map<Object, Claim> claim) {
+		log.info("Extracted claims --> {} <-- ", claim);
 		try {
-			List<UserDTO> userDTO = userService.getAllUsers();
+			String role = String.valueOf(claim.get("role"));
+			String email = String.valueOf(claim.get("email"));
+			List<UserDTO> userDTO = userService.getAllActiveAndInActiveUsers(role, email);
+			log.info("user requested with an -->  {} <-- role", role);
 			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
+			e.printStackTrace();
 			log.error("Fetching user list failed -- '{}'", e.getLocalizedMessage());
 			ResponseDTO<List<UserDTO>> errorResponse = new ResponseDTO<>(false, "Error occurred while retrieving users", null, 0);
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
-	}
-
-
-	@PostMapping("/login")
-	@Operation(
-		summary = "User login",
-		description = "A registered user can sign in to publish",
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				description = "Login successful",
-				content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
-			@ApiResponse(
-				responseCode = "400",
-				description = "Login failed",
-				content = @Content
-			)
-		}
-	)
-	ResponseEntity<ResponseDTO<LoginUpResponseDTO>> processLoginRequest(@Valid @RequestBody LoginDTO loginDTO) {
-		try {
-			LoginUpResponseDTO data = userService.processLoginRequest(loginDTO);
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Login successful", data, 1);
-			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-		} catch (Exception e) {
-			log.error("Login failed -- '{}'", e.getLocalizedMessage());
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, e.getMessage(), null, null);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-		}
-	}
-
-
-	@PostMapping("/signup")
-	@Operation(
-		summary = "User signup",
-		description = "Onboards a new user to the platform, after which they have author's privilege to publish",
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				description = "Sign up successful",
-				content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
-			@ApiResponse(
-				responseCode = "400",
-				description = "Sign up failed",
-				content = @Content
-			)
-		}
-	)
-	ResponseEntity<ResponseDTO<LoginUpResponseDTO>> processSignUpRequest(@Valid @RequestBody SignUpDTO signUpDTO) {
-		try {
-			LoginUpResponseDTO data = userService.processSignUpRequest(signUpDTO);
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Sign up successful", data, 1);
-			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-		} catch (RuntimeException e) {
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-		}
-	}
-
-	@PutMapping("/reset-password")
-	public ResponseEntity<Boolean> processResetPassword(@RequestBody @Valid LoginDTO loginDTO) {
-		Boolean resetComplete = userService.processPasswordReset(loginDTO);
-		return new ResponseEntity<>(resetComplete, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/delete/{id}")

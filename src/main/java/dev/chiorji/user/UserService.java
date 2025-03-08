@@ -89,8 +89,21 @@ public class UserService {
 		return BCrypt.checkpw(plaintext, hash);
 	}
 
-	public List<UserDTO> getAllUsers() {
-		return userRepository.getAllUsers();
+	public List<UserDTO> getAllActiveAndInActiveUsers(String role, String email) {
+		System.out.println(role + " : " + email);
+		User user = findUserByEmail(email);
+		System.out.println(user);
+		if (user.role().equalsIgnoreCase("ADMIN") && role.equalsIgnoreCase("ADMIN")) {
+			System.out.printf("user list as admin --> {}", user);
+			return userRepository.getActiveAndInActiveUsers();
+		} else {
+			System.out.printf("user list as author or viewer --> {}", user);
+			return getAllActiveUsers();
+		}
+	}
+
+	public List<UserDTO> getAllActiveUsers() {
+		return userRepository.getAllActiveUsers();
 	}
 
 	public Boolean processPasswordReset(LoginDTO loginDTO) {
