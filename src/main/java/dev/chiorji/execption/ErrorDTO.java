@@ -2,7 +2,7 @@ package dev.chiorji.execption;
 
 import java.util.*;
 
-public record ErrorResponseDTO(
+public record ErrorDTO(
 	Integer statusCode,
 	String message,
 	Date timestamp
