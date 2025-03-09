@@ -1,0 +1,1 @@
+package dev.chiorji.auth;import java.util.*;public record BulkSignUp(List<SignUpDTO> users) {}

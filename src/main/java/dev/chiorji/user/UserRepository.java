@@ -16,14 +16,6 @@ public class UserRepository {
 		this.jdbcClient = jdbcClient;
 	}
 
-	public KeyHolder createUser(SignUpDTO user) {
-		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcClient.sql("INSERT INTO USERS (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)")
-			.params(List.of(user.username(), user.email(), user.password()))
-				.update(keyHolder);
-		return keyHolder;
-	}
-
 	public List<UserDTO> getAllActiveUsers() {
 		return jdbcClient.sql(
 			"""
@@ -43,11 +35,6 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ?").params(List.of(email)).query(User.class).single();
 	}
 
-	public Integer providedEmailExists(final String email) {
-		return jdbcClient.sql("SELECT COUNT(*) FROM USERS WHERE EMAIL = :EMAIL")
-			.param("EMAIL", email).query(Integer.class).single();
-	}
-
 	public UserDTO findByUserId(Integer id) {
 		return jdbcClient.sql("SELECT * FROM USERS WHERE ID = :ID")
 			.param("ID", id).query(UserDTO.class).single();
@@ -57,15 +44,18 @@ public class UserRepository {
 		return jdbcClient.sql("SELECT COUNT(*) FROM USERS").query(Integer.class).single();
 	}
 
-	public void updatePassword(LoginDTO loginDTO) {
-		jdbcClient.sql("UPDATE USERS SET PASSWORD = ? WHERE EMAIL = ?")
-			.params(List.of(loginDTO.password(), loginDTO.email()))
-			.update();
-	}
-
-	public void softDeleteUserById(Integer id) {
+	public Boolean softDeleteUserById(Integer id) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcClient.sql("UPDATE USERS SET IS_DELETED = TRUE WHERE ID = ? AND ROLE != 'ADMIN'")
 			.params(List.of(id))
-			.update();
+			.update(keyHolder);
+		return !Objects.requireNonNull(keyHolder.getKeys()).isEmpty();
+	}
+
+	public User findUserByEmailAndRole(String email, String role) {
+		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ? AND ROLE = ?")
+			.params(List.of(email, role))
+			.query(User.class)
+			.single();
 	}
 }

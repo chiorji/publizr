@@ -2,7 +2,6 @@ package dev.chiorji.auth;
 
 import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
-import dev.chiorji.user.models.*;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;

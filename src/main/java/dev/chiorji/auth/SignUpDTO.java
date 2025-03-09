@@ -1,10 +1,7 @@
-package dev.chiorji.user.models;
+package dev.chiorji.auth;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.*;
+import jakarta.validation.constraints.*;
 
 @Schema(description = "Request body for signup")
 public record SignUpDTO(

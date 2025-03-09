@@ -1,6 +1,7 @@
 package dev.chiorji.user;
 
 import com.auth0.jwt.interfaces.*;
+import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -26,7 +27,7 @@ public class UserController {
 	}
 
 
-	@GetMapping("")
+	@GetMapping("/list")
 	@Operation(
 		summary = "Get the list of users",
 		description = "This endpoint returns the list of all users signed up on the platform",
@@ -43,26 +44,27 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers(@RequestAttribute("claims") Map<Object, Claim> claim) {
-		log.info("Extracted claims --> {} <-- ", claim);
+	public ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers(@RequestAttribute("claims") Map<String, Claim> claims) {
 		try {
-			String role = String.valueOf(claim.get("role"));
-			String email = String.valueOf(claim.get("email"));
-			List<UserDTO> userDTO = userService.getAllActiveAndInActiveUsers(role, email);
-			log.info("user requested with an -->  {} <-- role", role);
+			String email = claims.get("email").asString();
+			String role = claims.get("role").asString();
+			List<UserDTO> userDTO = userService.getAllUsers(role, email);
 			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-			log.error("Fetching user list failed -- '{}'", e.getLocalizedMessage());
-			ResponseDTO<List<UserDTO>> errorResponse = new ResponseDTO<>(false, "Error occurred while retrieving users", null, 0);
-			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			log.error("Error occurred while retrieving users", e);
+			throw new AuthenticationFailedException("Error occurred while retrieving users");
 		}
 	}
 
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<Boolean> processUserSoftDelete(@PathVariable @Valid Integer id) {
-		Boolean softDeleted = userService.softDeleteUserById(id);
-		return new ResponseEntity<>(softDeleted, HttpStatus.OK);
+		try {
+			Boolean softDeleted = userService.softDeleteUserById(id);
+			return new ResponseEntity<>(softDeleted, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e);
+			throw new User404Exception(e.getMessage());
+		}
 	}
 }
