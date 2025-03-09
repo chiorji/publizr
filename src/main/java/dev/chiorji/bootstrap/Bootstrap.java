@@ -2,31 +2,30 @@ package dev.chiorji.bootstrap;
 
 import com.fasterxml.jackson.core.type.*;
 import com.fasterxml.jackson.databind.*;
+import dev.chiorji.auth.*;
 import dev.chiorji.post.*;
 import dev.chiorji.post.models.*;
 import dev.chiorji.user.*;
-import dev.chiorji.user.models.*;
 import java.io.*;
 import org.slf4j.*;
 import org.springframework.boot.*;
-import org.springframework.context.annotation.*;
 import org.springframework.stereotype.*;
 
-@Profile("dev")
 @Component
 public class Bootstrap implements CommandLineRunner {
 	private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
 	private final ObjectMapper objectMapper;
-	private final UserService userService;
+	private final AuthService authService;
 
-	public Bootstrap(UserRepository userRepository, PostRepository postRepository, ObjectMapper objectMapper, UserService userService) {
+	public Bootstrap(UserRepository userRepository, PostRepository postRepository, ObjectMapper objectMapper, AuthService authService) {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
 		this.objectMapper = objectMapper;
-		this.userService = userService;
+		this.authService = authService;
 	}
+
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -39,8 +38,8 @@ public class Bootstrap implements CommandLineRunner {
 		if (totalEntries == 0) {
 			log.warn("No user found in the database, adding default users....");
 			try (InputStream inputStream = TypeReference.class.getResourceAsStream("/data/users.json")) {
-				UserRunner users = objectMapper.readValue(inputStream, UserRunner.class);
-				userService.saveAll(users.users());
+				BulkSignUp users = objectMapper.readValue(inputStream, BulkSignUp.class);
+				authService.saveAll(users.users());
 			} catch (RuntimeException | IOException e) {
 				log.error("Error loading default users.");
 				throw new RuntimeException(e);
