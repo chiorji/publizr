@@ -32,7 +32,7 @@ public class UserRepository {
 	}
 
 	public User findUserByEmail(String email) {
-		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ?").params(List.of(email)).query(User.class).single();
+		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ?").param(email).query(User.class).single();
 	}
 
 	public UserDTO findByUserId(Integer id) {
@@ -46,16 +46,10 @@ public class UserRepository {
 
 	public Boolean softDeleteUserById(Integer id) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcClient.sql("UPDATE USERS SET IS_DELETED = TRUE WHERE ID = ? AND ROLE != 'ADMIN'")
-			.params(List.of(id))
-			.update(keyHolder);
+		jdbcClient.sql(
+			"""
+				UPDATE USERS SET IS_DELETED = TRUE WHERE ID = ? AND ROLE != 'ADMIN'
+				""").param(id).update(keyHolder);
 		return !Objects.requireNonNull(keyHolder.getKeys()).isEmpty();
-	}
-
-	public User findUserByEmailAndRole(String email, String role) {
-		return jdbcClient.sql("SELECT * FROM USERS WHERE EMAIL = ? AND ROLE = ?")
-			.params(List.of(email, role))
-			.query(User.class)
-			.single();
 	}
 }
