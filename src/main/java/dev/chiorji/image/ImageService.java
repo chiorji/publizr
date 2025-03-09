@@ -29,13 +29,18 @@ public class ImageService {
 	private Map<String, Object> uploadToCloudinary(MultipartFile multipartFile) throws IOException {
 		File file = convert(multipartFile);
 		log.info("Converted file to stream, uploading to cloudinary...");
-		Map<String, Object> result = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "blog_covers"));
-		if (!Files.deleteIfExists(file.toPath())) {
-			log.error("Failed to delete temp file");
-			throw new IOException("Failed to delete temp file " + file.getAbsolutePath());
+		try {
+			Map<String, Object> result = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "blog_covers"));
+			if (!Files.deleteIfExists(file.toPath())) {
+				log.error("Failed to delete temp file");
+				log.info("Failed to delete temp file {}", file.getAbsolutePath());
+			}
+			log.info("File successfully uploaded to cloudinary -- {} --", result);
+			return result;
+		} catch (RuntimeException e) {
+			log.info("File upload to cloudinary failed -- {} --", e.getMessage());
+			throw new RuntimeException(e);
 		}
-		log.info("File successfully uploaded to cloudinary -- {} --", result);
-		return result;
 	}
 
 	private File convert(MultipartFile multipartFile) throws IOException {

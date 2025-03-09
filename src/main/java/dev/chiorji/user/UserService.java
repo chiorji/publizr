@@ -4,6 +4,7 @@ import dev.chiorji.execption.*;
 import dev.chiorji.post.*;
 import dev.chiorji.post.models.*;
 import dev.chiorji.user.models.*;
+import dev.chiorji.util.*;
 import java.util.*;
 import org.slf4j.*;
 import org.springframework.stereotype.*;
@@ -62,7 +63,7 @@ public class UserService {
 		List<PostDTO> postDTOS = postService.getPostByAuthorId(userToDelete.id());
 		for (PostDTO postDTO : postDTOS) {
 			PostDeleteDTO postDeleteDTO = new PostDeleteDTO(postDTO.id(), id);
-			postService.softDeletePostByIdAndAuthorId(postDeleteDTO);
+			postService.softDeletePostByIdAndAuthorId(postDeleteDTO, roleInfo);
 		}
 		return userRepository.softDeleteUserById(id);
 	}

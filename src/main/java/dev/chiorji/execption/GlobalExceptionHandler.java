@@ -30,12 +30,12 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
 	}
 
-	@ExceptionHandler(value = Exception.class)
-	@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-	public ResponseEntity<ErrorDTO> handleAllException(Exception e) {
-		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.NOT_ACCEPTABLE.value(), e.getMessage(), new Date());
-		return new ResponseEntity<>(errorDTO, HttpStatus.NOT_ACCEPTABLE);
-	}
+//	@ExceptionHandler(value = Exception.class)
+//	@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+//	public ResponseEntity<ErrorDTO> handleAllException(Exception e) {
+//		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.NOT_ACCEPTABLE.value(), e.getMessage(), new Date());
+//		return new ResponseEntity<>(errorDTO, HttpStatus.NOT_ACCEPTABLE);
+//	}
 
 	@ExceptionHandler(value = JWTDecodeException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)

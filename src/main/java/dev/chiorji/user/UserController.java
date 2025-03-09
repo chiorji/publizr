@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.*;
 import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
+import dev.chiorji.util.*;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 	private static final Logger log = LogManager.getLogger(UserController.class);
 	private final UserService userService;
+	private final Constant constant;
 
-	public UserController(UserService userService) {
+	public UserController(UserService userService, Constant constant) {
 		this.userService = userService;
+		this.constant = constant;
 	}
 
 
@@ -46,7 +49,7 @@ public class UserController {
 	)
 	public ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers(@RequestAttribute("claims") Map<String, Claim> claims) {
 		try {
-			RoleInfo roleInfo = getRole(claims);
+			RoleInfo roleInfo = constant.getRole(claims);
 			List<UserDTO> userDTO = userService.getAllUsers(roleInfo);
 			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -56,16 +59,11 @@ public class UserController {
 		}
 	}
 
-	private RoleInfo getRole(Map<String, Claim> claims) {
-		String email = claims.get("email").asString();
-		String role = claims.get("role").asString();
-		return new RoleInfo(email, role);
-	}
 
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<Boolean> processUserSoftDelete(@RequestAttribute("claims") Map<String, Claim> claims, @PathVariable @Valid Integer id) {
 		try {
-			RoleInfo roleInfo = getRole(claims);
+			RoleInfo roleInfo = constant.getRole(claims);
 			Boolean softDeleted = userService.softDeleteUserById(roleInfo, id);
 			return new ResponseEntity<>(softDeleted, HttpStatus.OK);
 		} catch (Exception e) {

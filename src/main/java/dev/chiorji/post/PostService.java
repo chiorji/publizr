@@ -1,8 +1,10 @@
 package dev.chiorji.post;
 
+import dev.chiorji.execption.*;
 import dev.chiorji.image.*;
 import dev.chiorji.like.*;
 import dev.chiorji.post.models.*;
+import dev.chiorji.util.*;
 import java.io.*;
 import java.util.*;
 import org.slf4j.*;
@@ -15,11 +17,13 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final ImageService imageService;
 	private final LikeService likeService;
+	private final Constant constant;
 
-	public PostService(PostRepository postRepository, ImageService imageService, LikeService likeService) {
+	public PostService(PostRepository postRepository, ImageService imageService, LikeService likeService, Constant constant) {
 		this.postRepository = postRepository;
 		this.imageService = imageService;
 		this.likeService = likeService;
+		this.constant = constant;
 	}
 
 	public List<PostDTO> list() {
@@ -31,8 +35,11 @@ public class PostService {
 		}
 	}
 
-	public PostDTO publishPost(PublishDTO publishDTO) {
+	public PostDTO publishPost(PublishDTO publishDTO, RoleInfo roleInfo) {
 		try {
+			if (!constant.sameAuthorIdAndClaimId(roleInfo.id(), publishDTO.author_id())) {
+				throw new AuthenticationFailedException("Failed! Mismatching identities");
+			}
 			Image image = imageService.uploadImage(new ImageUploadDTO(publishDTO.title(), publishDTO.poster_card()));
 			Post post = new Post(
 				publishDTO.title(), publishDTO.content(), publishDTO.excerpt(), image.id(), publishDTO.tags(), publishDTO.status(), publishDTO.author_id(),
@@ -90,7 +97,7 @@ public class PostService {
 		return postRepository.findPostById(postId);
 	}
 
-	public void softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO) {
+	public void softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO, RoleInfo roleInfo) {
 		try {
 			Integer postLikes = likeService.getPostLikesCount(postDeleteDTO.id());
 			if (postLikes > 0) {
