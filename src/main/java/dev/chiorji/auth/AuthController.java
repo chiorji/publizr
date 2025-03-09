@@ -1,5 +1,6 @@
 package dev.chiorji.auth;
 
+import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
 import io.swagger.v3.oas.annotations.*;
@@ -42,9 +43,7 @@ public class AuthController {
 			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Login successful", data, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
-			log.error("Login failed -- '{}'", e.getLocalizedMessage());
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, e.getMessage(), null, null);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+			throw new AuthenticationFailedException(e.getMessage());
 		}
 	}
 
@@ -70,14 +69,17 @@ public class AuthController {
 			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(true, "Sign up successful", data, 1);
 			return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 		} catch (RuntimeException e) {
-			ResponseDTO<LoginUpResponseDTO> responseDTO = new ResponseDTO<>(false, "Sign up failed, but don't fret - retry with another email.", null, 0);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+			throw new AuthenticationFailedException(e.getMessage());
 		}
 	}
 
 	@PutMapping("/reset-password")
 	public ResponseEntity<Boolean> processResetPassword(@RequestBody @Valid LoginDTO loginDTO) {
-		Boolean resetComplete = authService.processPasswordReset(loginDTO);
-		return new ResponseEntity<>(resetComplete, HttpStatus.OK);
+		try {
+			Boolean resetComplete = authService.processPasswordReset(loginDTO);
+			return new ResponseEntity<>(resetComplete, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new AuthenticationFailedException(e.getMessage());
+		}
 	}
 }
