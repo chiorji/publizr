@@ -61,3 +61,13 @@ http://localhost:8080/swagger-ui/index.html
 6. HAVING
 7. ORDER BY
 ```
+
+### Interacting with the dev database
+
+```bash
+docker container exec -it publizr-db bash
+psql blog -U blogger
+start transaction;
+update users set role = 'ADMIN' where id=1;
+commit;
+```

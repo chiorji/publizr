@@ -1,6 +1,5 @@
 package dev.chiorji.user;
 
-import com.auth0.jwt.interfaces.*;
 import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
 import dev.chiorji.user.models.*;
@@ -47,10 +46,9 @@ public class UserController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	public ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers(@RequestAttribute("claims") Map<String, Claim> claims) {
+	public ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers() {
 		try {
-			RoleInfo roleInfo = constant.getRole(claims);
-			List<UserDTO> userDTO = userService.getAllUsers(roleInfo);
+			List<UserDTO> userDTO = userService.getAllUsers();
 			ResponseDTO<List<UserDTO>> responseDTO = new ResponseDTO<>(true, "Users retrieved", userDTO, userDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (Exception e) {
@@ -61,10 +59,10 @@ public class UserController {
 
 
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<Boolean> processUserSoftDelete(@RequestAttribute("claims") Map<String, Claim> claims, @PathVariable @Valid Integer id) {
+	public ResponseEntity<Boolean> processUserSoftDelete(@PathVariable @Valid Integer id) {
 		try {
-			RoleInfo roleInfo = constant.getRole(claims);
-			Boolean softDeleted = userService.softDeleteUserById(roleInfo, id);
+//			RoleInfo roleInfo = constant.getRole(claims);
+			Boolean softDeleted = userService.softDeleteUserById(id);
 			return new ResponseEntity<>(softDeleted, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e);

@@ -20,17 +20,15 @@ public class UserService {
 		this.postService = postService;
 	}
 
-	public List<UserDTO> getAllUsers(RoleInfo roleInfo) {
-		String email = roleInfo.email();
-		String role = roleInfo.role();
-		log.info("{} <--> {}", role, email);
-		if (hasAdminRight(roleInfo)) {
-			log.info("getAllUsers --> admin");
-			return getActiveAndInActiveUsers();
-		} else {
-			log.info("getAllUsers --> author or viewer");
-			return getAllActiveUsers();
-		}
+	public List<UserDTO> getAllUsers() {
+		return getActiveAndInActiveUsers();
+//		if (hasAdminRight(roleInfo)) {
+//			log.info("getAllUsers --> admin");
+//			return getActiveAndInActiveUsers();
+//		} else {
+//			log.info("getAllUsers --> author or viewer");
+//			return getAllActiveUsers();
+//		}
 	}
 
 	public Boolean hasAdminRight(RoleInfo roleInfo) {
@@ -50,20 +48,15 @@ public class UserService {
 		return userRepository.findUserByEmail(email);
 	}
 
-	public Boolean softDeleteUserById(RoleInfo roleInfo, Integer id) {
-		// ensure the user performing req exists
-		User performer = findUserByEmail(roleInfo.email());
-		if (performer == null) throw new AuthenticationFailedException("Request failed");
-
+	public Boolean softDeleteUserById(Integer id) {
 		UserDTO userToDelete = findUserById(id);
 		if (userToDelete == null) throw new User404Exception("User Not Found");
 
 		// ensure it is user deleting own account or admin is deleting user's account
-		if (!hasAdminRight(roleInfo) || !Objects.equals(userToDelete.id(), id)) throw new AuthenticationFailedException("You cannot perform this action");
 		List<PostDTO> postDTOS = postService.getPostByAuthorId(userToDelete.id());
 		for (PostDTO postDTO : postDTOS) {
 			PostDeleteDTO postDeleteDTO = new PostDeleteDTO(postDTO.id(), id);
-			postService.softDeletePostByIdAndAuthorId(postDeleteDTO, roleInfo);
+			postService.softDeletePostByIdAndAuthorId(postDeleteDTO);
 		}
 		return userRepository.softDeleteUserById(id);
 	}

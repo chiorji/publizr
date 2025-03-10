@@ -30,17 +30,40 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
 	}
 
-//	@ExceptionHandler(value = Exception.class)
-//	@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-//	public ResponseEntity<ErrorDTO> handleAllException(Exception e) {
-//		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.NOT_ACCEPTABLE.value(), e.getMessage(), new Date());
-//		return new ResponseEntity<>(errorDTO, HttpStatus.NOT_ACCEPTABLE);
-//	}
+	@ExceptionHandler(value = PublishFailedException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public ResponseEntity<ErrorDTO> handleAllException(PublishFailedException e) {
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), new Date());
+		return new ResponseEntity<>(errorDTO, HttpStatus.UNAUTHORIZED);
+	}
 
 	@ExceptionHandler(value = JWTDecodeException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public ResponseEntity<ErrorDTO> handleJWTDecodeException(JWTDecodeException e) {
-		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), "Invalid token", new Date());
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), "Missing or invalid JWT token", new Date());
 		return new ResponseEntity<>(errorDTO, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(value = TokenExpiredException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public ResponseEntity<?> handleTokenExpiredException(TokenExpiredException e) {
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), "Provided JWT token expired", new Date());
+		return new ResponseEntity<>(errorDTO, HttpStatus.UNAUTHORIZED);
+	}
+
+
+	@ExceptionHandler(value = JWTVerificationException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public ResponseEntity<?> handleJWTVerificationException(JWTVerificationException e) {
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), "JWT verification failed", new Date());
+		return new ResponseEntity<>(errorDTO, HttpStatus.UNAUTHORIZED);
+	}
+
+
+	@ExceptionHandler(value = Exception.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ResponseEntity<?> handleGlobalException(Exception e) {
+		ErrorDTO errorDTO = new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred", new Date());
+		return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

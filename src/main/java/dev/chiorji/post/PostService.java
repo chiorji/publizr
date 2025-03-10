@@ -5,7 +5,6 @@ import dev.chiorji.image.*;
 import dev.chiorji.like.*;
 import dev.chiorji.post.models.*;
 import dev.chiorji.util.*;
-import java.io.*;
 import java.util.*;
 import org.slf4j.*;
 import org.springframework.jdbc.support.*;
@@ -35,11 +34,11 @@ public class PostService {
 		}
 	}
 
-	public PostDTO publishPost(PublishDTO publishDTO, RoleInfo roleInfo) {
+	public PostDTO publishPost(PublishDTO publishDTO) {
 		try {
-			if (!constant.sameAuthorIdAndClaimId(roleInfo.id(), publishDTO.author_id())) {
-				throw new AuthenticationFailedException("Failed! Mismatching identities");
-			}
+//			if (!constant.sameAuthorIdAndClaimId(roleInfo.id(), publishDTO.author_id())) {
+//				throw new AuthenticationFailedException("Failed! Mismatching identities");
+//			}
 			Image image = imageService.uploadImage(new ImageUploadDTO(publishDTO.title(), publishDTO.poster_card()));
 			Post post = new Post(
 				publishDTO.title(), publishDTO.content(), publishDTO.excerpt(), image.id(), publishDTO.tags(), publishDTO.status(), publishDTO.author_id(),
@@ -47,9 +46,9 @@ public class PostService {
 			);
 			Integer postId = postRepository.save(post);
 			return postRepository.findPostById(postId);
-		} catch (RuntimeException | IOException e) {
+		} catch (Exception e) {
 			log.error("Post publish failed -- '{}' -- ", e.getMessage());
-			throw new RuntimeException(e);
+			throw new PublishFailedException(e.getMessage());
 		}
 	}
 
@@ -97,7 +96,7 @@ public class PostService {
 		return postRepository.findPostById(postId);
 	}
 
-	public void softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO, RoleInfo roleInfo) {
+	public void softDeletePostByIdAndAuthorId(PostDeleteDTO postDeleteDTO) {
 		try {
 			Integer postLikes = likeService.getPostLikesCount(postDeleteDTO.id());
 			if (postLikes > 0) {

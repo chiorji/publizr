@@ -24,7 +24,9 @@ public class FilterConfig {
 		System.out.println("FilterConfig: Registering CustomJWTFilter");
 		FilterRegistrationBean<CustomJWTFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(new CustomJWTFilter(secretKey, tokenIssuer));
-		registrationBean.addUrlPatterns("/api/posts/delete/*", "/api/posts/publish", "/api/posts/feature/*", "/api/posts/update/*", "/api/users/*");
+//		registrationBean.addUrlPatterns("/api/posts/delete", "/api/posts/publish/", "/api/posts/feature", "/api/posts/update", "/api/users/**");
+		registrationBean.addUrlPatterns("/api/posts/**", "/api/users/**");
+
 		registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
 		return registrationBean;
 	}

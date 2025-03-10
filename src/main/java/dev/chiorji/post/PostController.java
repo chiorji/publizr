@@ -1,6 +1,6 @@
 package dev.chiorji.post;
 
-import com.auth0.jwt.interfaces.*;
+import dev.chiorji.execption.*;
 import dev.chiorji.models.*;
 import dev.chiorji.post.models.*;
 import dev.chiorji.util.*;
@@ -49,14 +49,9 @@ public class PostController {
 		}
 	)
 	ResponseEntity<ResponseDTO<List<PostDTO>>> list() {
-		try {
 			List<PostDTO> postDTO = postService.list();
 			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(true, "publications retrieved", postDTO, postDTO.size());
 			return ResponseEntity.ok(responseDTO);
-		} catch (RuntimeException e) {
-			ResponseDTO<List<PostDTO>> errorResponse = new ResponseDTO<>(false, "Error occurred while retrieving publications", null, 0);
-			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-		}
 	}
 
 	
@@ -83,13 +78,12 @@ public class PostController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			log.error("Fetching post failed -- '{}'", e.getMessage());
-			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(false, "Could not retrieve information for post with ID " + id, null, 0);
-			return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+			throw new Post404Exception(STR."Post with Id: \{id} not found");
 		}
 	}
 
 
-	@PostMapping(value = "/publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(
 		summary = "Publish a post",
 		description = "Publishes a post",
@@ -105,9 +99,9 @@ public class PostController {
 		},
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
-	ResponseEntity<ResponseDTO<PostDTO>> publishPost(@ModelAttribute @Valid PublishDTO publishDTO, @RequestAttribute("claims") Map<String, Claim> claims) {
-		RoleInfo roleInfo = constant.getRole(claims);
-		PostDTO postDTO = postService.publishPost(publishDTO, roleInfo);
+	ResponseEntity<ResponseDTO<PostDTO>> publishPost(@ModelAttribute @Valid PublishDTO publishDTO) {
+//		RoleInfo roleInfo = constant.getRole(claims);
+		PostDTO postDTO = postService.publishPost(publishDTO);
 		ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(true, "published successfully", postDTO, 1);
 		return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 	}
@@ -131,14 +125,9 @@ public class PostController {
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "author's id")
 	ResponseEntity<ResponseDTO<List<PostDTO>>> getPostByAuthorId(@PathVariable Integer id) {
-		try {
 			List<PostDTO> postDTO = postService.getPostByAuthorId(id);
 			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(true, "publications retrieved successfully", postDTO, postDTO.size());
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-		} catch (RuntimeException e) {
-			ResponseDTO<List<PostDTO>> responseDTO = new ResponseDTO<>(false, "Post does not exist", null, 0);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-		}
 	}
 
 	@GetMapping("/recent")
@@ -184,20 +173,16 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be deleted", required = true)
-	ResponseEntity<ResponseDTO<Void>> softDeletePostById(@ModelAttribute @Valid PostDeleteDTO postDeleteDTO, @RequestAttribute("claims") Map<String, Claim> claims) {
-		try {
-			RoleInfo roleInfo = constant.getRole(claims);
-			postService.softDeletePostByIdAndAuthorId(postDeleteDTO, roleInfo);
+	ResponseEntity<ResponseDTO<Void>> softDeletePostById(@ModelAttribute @Valid PostDeleteDTO postDeleteDTO) {
+//			RoleInfo roleInfo = constant.getRole(claims);
+		postService.softDeletePostByIdAndAuthorId(postDeleteDTO);
 			ResponseDTO<Void> responseDTO = new ResponseDTO<>(true, "Publication deleted successfully", null, 0);
 			return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
-		} catch (RuntimeException e) {
-			ResponseDTO<Void> responseDTO = new ResponseDTO<>(false, "Failed to delete post", null, 0);
-			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-		}
+
 	}
 
 	@PutMapping("/feature/{id}")
-	public ResponseEntity<Boolean> updatePostFeatureStatus(@PathVariable @Valid Integer id, @RequestAttribute("claims") Map<String, Claim> claims) {
+	public ResponseEntity<Boolean> updatePostFeatureStatus(@PathVariable @Valid Integer id) {
 		Boolean deleted = postService.updatePostFeatureStatus(id);
 		return new ResponseEntity<>(deleted, HttpStatus.OK);
 	}
@@ -219,7 +204,7 @@ public class PostController {
 		security = @SecurityRequirement(name = "Bearer Auth")
 	)
 	@Parameter(in = ParameterIn.PATH, name = "id", description = "Id of the post to be updated", required = true)
-	ResponseEntity<ResponseDTO<PostDTO>> updatePost(@RequestBody @Valid PostUpdateDTO postUpdateDTO, @RequestAttribute("claims") Map<String, Claim> claims) {
+	ResponseEntity<ResponseDTO<PostDTO>> updatePost(@RequestBody @Valid PostUpdateDTO postUpdateDTO) {
 		try {
 			PostDTO postDTO = postService.updatePost(postUpdateDTO);
 			ResponseDTO<PostDTO> responseDTO = new ResponseDTO<>(true, "Post updated successfully", postDTO, 1);
